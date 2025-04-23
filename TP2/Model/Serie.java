@@ -1,13 +1,12 @@
 package TP2.Model;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
+import TP2.Interfaces.Registro;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
-
-import TP2.Interfaces.Registro;
 
 public class Serie implements Registro {
     protected int idSerie;
@@ -17,6 +16,7 @@ public class Serie implements Registro {
     protected int SinopseSize;
     protected String Streaming;
     protected int QtdTemporada;
+    protected int IDator;
 
         //construtor para passar os valores dos atributos
         public Serie(int i, String n, LocalDate a ,  String si,int SS, String st, int QtdTe){
