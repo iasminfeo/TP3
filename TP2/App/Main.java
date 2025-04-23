@@ -1,9 +1,9 @@
-package TP1.App;
+package TP2.App;
 
-import TP1.Menu.MenuEpisodio;
-import TP1.Menu.MenuSerie;
-import TP1.Model.*;
-import TP1.Service.*;
+import TP2.Menu.MenuEpisodio;
+import TP2.Menu.MenuSerie;
+import TP2.Model.*;
+import TP2.Service.*;
 import java.util.*;
 
 public class Main {

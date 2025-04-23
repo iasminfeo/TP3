@@ -1,17 +1,17 @@
-package TP1.Menu;
+package TP2.Menu;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import TP1.Model.Episodio;
-import TP1.Model.Serie;
-import TP1.Service.Arquivo;
-import TP1.Service.ParIDSerieEpisodio;
-import TP1.Service.RelacionamentoSerieEpisodio;
-import TP1.View.ViewEpisodio;
-import TP1.View.ViewSerie;
+import TP2.Model.Episodio;
+import TP2.Model.Serie;
+import TP2.Service.Arquivo;
+import TP2.Service.ParIDSerieEpisodio;
+import TP2.Service.RelacionamentoSerieEpisodio;
+import TP2.View.ViewEpisodio;
+import TP2.View.ViewSerie;
 
 public class MenuEpisodio {
     public Scanner sc = new Scanner(System.in);

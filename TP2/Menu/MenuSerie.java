@@ -1,12 +1,12 @@
-package TP1.Menu;
+package TP2.Menu;
 
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import TP1.Model.Episodio;
-import TP1.Model.Serie;
-import TP1.Service.*;
-import TP1.View.*;
+import TP2.Model.Episodio;
+import TP2.Model.Serie;
+import TP2.Service.*;
+import TP2.View.*;
 
 public class MenuSerie {
     public Scanner sc = new Scanner(System.in);

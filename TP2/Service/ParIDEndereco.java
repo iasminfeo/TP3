@@ -1,4 +1,4 @@
-package TP1.Service;
+package TP2.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -6,7 +6,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import TP1.Interfaces.RegistroHashExtensivel;
+import TP2.Interfaces.RegistroHashExtensivel;
 
 /**
  *  ParIDEndereco: Classe que representa um par de ID e Endereco.

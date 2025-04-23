@@ -1,4 +1,4 @@
-package TP1.Model;
+package TP2.Model;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -7,7 +7,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 
-import TP1.Interfaces.Registro;
+import TP2.Interfaces.Registro;
 
 public class Serie implements Registro {
     protected int idSerie;

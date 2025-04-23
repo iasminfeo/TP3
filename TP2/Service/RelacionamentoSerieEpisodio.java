@@ -1,11 +1,11 @@
-package TP1.Service;
+package TP2.Service;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import TP1.Model.Episodio;
-import TP1.Model.Serie;
+import TP2.Model.Episodio;
+import TP2.Model.Serie;
 
 public class RelacionamentoSerieEpisodio {
     private Arquivo<Episodio> arqEpisodios;
@@ -40,7 +40,7 @@ public class RelacionamentoSerieEpisodio {
         try {
             // IMPORTANTE: Usando caminho absoluto para garantir consistência
             String diretorioAtual = System.getProperty("user.dir");
-            String caminhoData = diretorioAtual + "/TP01/TP01/Data";
+            String caminhoData = diretorioAtual + "/TP2/dados";
             
             // Verificar se o diretório de dados existe
             java.io.File dataDir = new java.io.File(caminhoData);

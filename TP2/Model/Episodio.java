@@ -1,4 +1,4 @@
-package TP1.Model;
+package TP2.Model;
 
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
@@ -6,7 +6,7 @@ import java.io.DataOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
-import TP1.Interfaces.Registro;
+import TP2.Interfaces.Registro;
 
 public class Episodio implements Registro{
     protected int ID;
