@@ -58,6 +58,10 @@ public class ViewAtor {
         }
     }
 
+    public void lerNomeAtor(){
+        String termo = sc.nextLine();
+    }
+
     public void mostrarAtor(Ator A) {
         System.out.println("ID: " + A.getId());
         System.out.println("Nome: " + A.getNome());

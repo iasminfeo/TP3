@@ -25,7 +25,7 @@ public class MenuAtor {
         this.arqSerie = arqSerie;
         this.viewAtor = new ViewAtor(sc);
         this.viewSerie = new ViewSerie(sc);
-        this.relacionamento = new RelacionamentoSerieEpisodio(arqSerie, arqAtor);
+        this.relacionamento = new RelacionamentoSerieAtor(arqSerie, arqAtor);
     }
 
     public void menuAtor() throws Exception {
