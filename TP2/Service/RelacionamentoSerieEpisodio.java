@@ -3,7 +3,6 @@ package TP2.Service;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
-
 import TP2.Model.Episodio;
 import TP2.Model.Serie;
 
@@ -11,7 +10,6 @@ public class RelacionamentoSerieEpisodio {
     private Arquivo<Episodio> arqEpisodios;
     private Arquivo<Serie> arqSerie;
     public ArvoreBMais<ParIDSerieEpisodio> arvoreRelacionamento; // Tornada pública para acesso de diagnóstico
-
 
     public void testarInsercaoArvore() {
         try {

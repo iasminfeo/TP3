@@ -1,6 +1,8 @@
 package TP2.View;
 
 import TP2.Model.*;
+
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class ViewAtor {
@@ -58,8 +60,114 @@ public class ViewAtor {
         }
     }
 
-    public void lerNomeAtor(){
+    public String lerNomeAtor(){
         String termo = sc.nextLine();
+        return termo;
+    }
+
+    public int LerIDAtor(){
+        System.out.print("Digite o ID do Ator: ");
+        int id = sc.nextInt();
+        sc.nextLine(); // Limpar buffer
+        return id;
+    }
+
+    public void mostraResultadoBuscaAtores(ArrayList<Ator> atores){
+        if(atores.isEmpty()){
+            System.out.println("Nenhum ator encontrado com o nome informado.");
+            return;
+        }
+
+        System.out.println("\n=== Atores Encontrados ===");
+        System.out.println("Total: " + atores.size() + " ator(es) encontrado(s).");
+        
+        for (Ator ator : atores) {
+            System.out.println("\nID: " + ator.getId() + " | Nome:" + ator.getNome() + " | Gênero: " + ator.getGenero());
+        }
+    }
+
+    public Ator alterarAtor(int idSerie, Ator A){
+        System.out.println("Alteração de ator:");
+        if (A != null) {
+            System.out.println("Ator Encontrado: ");
+            mostrarAtor(A);
+
+            System.out.println("\nDigite o novo nome do ator (ou deixe em branco para manter o anterior): ");
+            String novoNome = sc.nextLine();
+            if (!novoNome.isEmpty()) {
+                A.setNome(novoNome);
+            }
+
+            System.out.println("\nDigite o novo gênero do ator (ou deixe em branco para manter o anterior): ");
+            char novoGenero = sc.nextLine().charAt(0);
+            if (novoGenero == 'M' || novoGenero == 'F') {
+                A.setGenero(novoGenero);
+            } else {
+                System.err.println("Gênero inválido! Use 'M' ou 'F'.");
+            }
+
+            System.out.println("\nConfirme os dados do Ator:");
+            System.out.println("Nome: " + A.getNome());
+            System.out.println("ID da Série: " + idSerie);
+            System.out.println("Gênero: " + A.getGenero());
+
+             // Confirmação da alteração
+             System.out.print("\nConfirma as alterações? (S/N) ");
+             char resp = sc.next().charAt(0);
+             if (resp == 'S' || resp == 's') {
+                 // Salva as alterações no arquivo
+                 return A;
+             } else {
+                 System.out.println("Alterações canceladas.");
+                 return null;
+             }
+         }
+         return null;
+    }
+
+    public int selecionaAtorDoResultado(ArrayList<Ator> Atores) {
+        if (Atores.isEmpty()) {
+            return -1;
+        }
+
+        if (Atores.size() == 1) {
+            System.out.println("\nAtores selecionados automaticamente: " + Atores.get(0).getNome());
+            return Atores.get(0).getId();
+        }
+
+        System.out.print("\nDigite o ID do ator que deseja selecionar (0 para cancelar): ");
+        int id = sc.nextInt();
+        sc.nextLine(); // Limpar buffer
+
+        // Verificar se o ID está na lista
+        if (id != 0) {
+            boolean idExiste = false;
+            for (Ator at : Atores) {
+                if (at.getId() == id) {
+                    idExiste = true;
+                    break;
+                }
+            }
+
+            if (!idExiste) {
+                System.out.println("ID inválido! Por favor, selecione um ID da lista apresentada.");
+                return selecionaAtorDoResultado(Atores); // Recursão para nova tentativa
+            }
+        }
+
+        return id;
+    }
+
+    public void mostraListaAtores(ArrayList<Ator> Atores) {
+        if (Atores.isEmpty()) {
+            System.out.println("Nenhum ator encontrado.");
+            return;
+        }
+
+        System.out.println("\n=== Lista de Atores ===");
+        for (Ator ator : Atores) {
+            System.out.println("ID: " + ator.getId() + " | Nome: " + ator.getNome() + " | Gênero: " + ator.getGenero());
+        }
     }
 
     public void mostrarAtor(Ator A) {
