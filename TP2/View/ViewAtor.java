@@ -61,6 +61,7 @@ public class ViewAtor {
     }
 
     public String lerNomeAtor(){
+        System.out.print("Digite o nome do ator: ");
         String termo = sc.nextLine();
         return termo;
     }

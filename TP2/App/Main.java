@@ -1,5 +1,6 @@
 package TP2.App;
 
+import TP2.Menu.MenuAtor;
 import TP2.Menu.MenuEpisodio;
 import TP2.Menu.MenuSerie;
 import TP2.Model.*;
@@ -10,6 +11,7 @@ public class Main {
     static Scanner sc = new Scanner(System.in);
     static Arquivo<Episodio> arqEpisodios;
     static Arquivo<Serie> arqSerie;
+    static Arquivo<Ator> arqAtores;
 
     public static void main(String[] args) throws Exception {
         Scanner sc;
@@ -21,10 +23,13 @@ public class Main {
             //incializar os arquivos
             arqEpisodios = new Arquivo<>("Episodios", Episodio.class.getConstructor());
             arqSerie = new Arquivo<>("Serie", Serie.class.getConstructor());
+            arqAtores = new Arquivo<>("Atores", Ator.class.getConstructor());
 
             // Inicializa os controladores
             MenuSerie menuSerie = new MenuSerie(sc, arqSerie, arqEpisodios);
             MenuEpisodio menuEp = new MenuEpisodio(sc, arqEpisodios, arqSerie);
+            MenuAtor menuAt = new MenuAtor(sc, arqAtores, arqSerie);
+
             do {
 
                 System.out.println("\n\nAEDsIII");
@@ -49,7 +54,7 @@ public class Main {
                         menuEp.menuEpisodio();
                         break;
                     case 3:
-                        System.out.println("Ainda não implementado.");
+                        menuAt.menuAtor();
                         break;
                     case 0:
                         break;

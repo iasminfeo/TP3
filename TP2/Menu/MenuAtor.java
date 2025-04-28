@@ -35,7 +35,7 @@ public class MenuAtor {
             System.out.println("\n\nAEDsIII");
             System.out.println("-------");
             System.out.println("> Início > Episódio");
-            System.out.println("\n1 - Listar séries");
+            System.out.println("\n1 - Listar  atores");
             System.out.println("2 - Gerenciar atores de uma série");
             System.out.println("3 - Buscar atores");
             System.out.println("0 - Voltar");
@@ -143,7 +143,7 @@ public class MenuAtor {
         }
 
         // Selecionar série para gerenciar episódios
-        System.out.print("\nDigite o ID da série para gerenciar seus episódios (0 para cancelar): ");
+        System.out.print("\nDigite o ID da série para gerenciar seus atores (0 para cancelar): ");
         int idSelecionado = sc.nextInt();
         sc.nextLine(); // Limpar buffer
 
