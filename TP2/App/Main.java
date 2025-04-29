@@ -26,7 +26,7 @@ public class Main {
             arqAtores = new Arquivo<>("Atores", Ator.class.getConstructor());
 
             // Inicializa os controladores
-            MenuSerie menuSerie = new MenuSerie(sc, arqSerie, arqEpisodios);
+            MenuSerie menuSerie = new MenuSerie(sc, arqSerie, arqEpisodios, arqAtores);
             MenuEpisodio menuEp = new MenuEpisodio(sc, arqEpisodios, arqSerie);
             MenuAtor menuAt = new MenuAtor(sc, arqAtores, arqSerie);
 

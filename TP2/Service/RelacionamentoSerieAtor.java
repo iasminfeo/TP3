@@ -393,7 +393,6 @@ public class RelacionamentoSerieAtor {
         return Ators;
     }
     
-    
     // Atualizar os índices após criação, atualização ou remoção de atisódios
     public void atualizarIndicesAposOperacao(Ator Ator, String operacao) throws Exception {
         int idSerie = Ator.getIDSerie();

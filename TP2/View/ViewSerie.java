@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 
-import TP2.Model.Serie;
+import TP2.Model.*;
 
 
 public class ViewSerie {
@@ -27,6 +27,7 @@ public class ViewSerie {
         int SinopseSize = 0;
         String Streaming = "";
         int QtdTemporada = 0;
+        int idAtor = 0;
         boolean dadosCorretos = false;
 
         System.out.println("Nome:");
@@ -102,7 +103,7 @@ public class ViewSerie {
 
         if (resp == 'S' || resp == 's') {
             try {
-                Serie S = new Serie(Nome, AnoLancamento, Sinopse, SinopseSize, Streaming, QtdTemporada);
+                Serie S = new Serie(Nome, AnoLancamento, Sinopse, SinopseSize, Streaming, QtdTemporada, idAtor);
                 return S;
             } catch (Exception e) {
                 System.out.println("Erro do sistema. Não foi possível incluir a série!");

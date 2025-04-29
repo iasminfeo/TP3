@@ -5,23 +5,31 @@ import java.util.Scanner;
 
 import TP2.Model.Episodio;
 import TP2.Model.Serie;
+import TP2.Model.Ator;
 import TP2.Service.*;
 import TP2.View.*;
+
 
 public class MenuSerie {
     public Scanner sc = new Scanner(System.in);
     Arquivo<Serie> arqSerie;
     Arquivo<Episodio> arqEpisodios;
+    Arquivo<Ator> arqAtor;
     ViewSerie viewSerie;
+    ViewAtor viewAtor;
     RelacionamentoSerieEpisodio relacionamento;
+    RelacionamentoSerieAtor relacionamentoAtorSerie;
 
 
-    public MenuSerie(Scanner sc, Arquivo<Serie> arqSerie, Arquivo<Episodio> arqEpisodio ) throws Exception{
+    public MenuSerie(Scanner sc, Arquivo<Serie> arqSerie, Arquivo<Episodio> arqEpisodio, Arquivo<Ator> arqAtor ) throws Exception{
         this.sc = sc;
         this.arqSerie = arqSerie;
         this.arqEpisodios = arqEpisodio;
+        this.arqAtor = arqAtor;
         this.viewSerie = new ViewSerie(sc);
+        this.viewAtor = new ViewAtor(sc);
         this.relacionamento = new RelacionamentoSerieEpisodio(arqSerie,arqEpisodio);
+        this.relacionamentoAtorSerie = new RelacionamentoSerieAtor(arqSerie,arqAtor);
     }
 
     public void menuSerie() throws Exception {
@@ -36,7 +44,9 @@ public class MenuSerie {
             System.out.println("2 - Incluir");
             System.out.println("3 - Alterar");
             System.out.println("4 - Excluir");
-            System.out.println("5 - Visualizar série com episódios por temporada");
+            System.out.println("5 - Visualizar atores da serie");
+            System.out.println("6 - Visualizar episodios da serie");
+            System.out.println("7 - Linkar Ator em uma série ");
             System.out.println("0 - Voltar");
 
             System.out.print("\nOpção: ");
@@ -59,6 +69,15 @@ public class MenuSerie {
                 case 4:
                     excluirSerieNome();
                     break;
+                case 5:
+                    visualizarAtoresSerie();
+                    break;
+                case 6:
+                    //visualizarEpisodiosSerie();
+                    break;
+                case 7:
+                    //linkarAtorSerie();
+                    break;                  
                 case 0:
                     break;
                 default:
@@ -204,4 +223,37 @@ public class MenuSerie {
 
     }
 
+    public void visualizarAtoresSerie() throws Exception {
+        String termobusco = viewSerie.LerNomeSerie();
+
+        if (termobusco.trim().isEmpty()) {
+            System.out.println("Termo de busca inválido!");
+            return;
+        }
+
+        // Realizar a busca
+        ArrayList<Serie> resultados = relacionamento.buscarSeriePorNome(termobusco);
+
+        // Exibir resultados
+        viewSerie.mostrarSeriesEncontradas(resultados);
+
+        if (resultados.isEmpty()) {
+            return;
+        }
+
+        //Escolher série para visualizar atores
+        System.out.print("\nDigite o ID da série que deseja visualizar os atores (0 para cancelar): ");
+        int idSelecionado = sc.nextInt();
+        sc.nextLine(); // Limpar buffer
+
+
+
+        Serie S = arqSerie.read(idSelecionado);
+        if(S == null){
+            System.out.println("Série não encontrada.");
+            return;
+        }
+        ArrayList<Ator> atores = relacionamentoAtorSerie.getAtoresDaSerie(idSelecionado);
+        viewAtor.mostraResultadoBuscaAtores(atores);
+    }
 }

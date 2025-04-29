@@ -19,7 +19,7 @@ public class Serie implements Registro {
     protected int IDator;
 
         //construtor para passar os valores dos atributos
-        public Serie(int i, String n, LocalDate a ,  String si,int SS, String st, int QtdTe){
+        public Serie(int i, String n, LocalDate a ,  String si,int SS, String st, int QtdTe, int IDat){
             idSerie = i;
             Nome = n;
             AnoLancamento = a;
@@ -27,9 +27,10 @@ public class Serie implements Registro {
             SinopseSize = SS;
             Streaming = st;
             QtdTemporada = QtdTe;
+            IDator = IDat;
         }
 
-        public Serie( String n, LocalDate a ,  String si,int SS, String st, int QtdTe){
+        public Serie( String n, LocalDate a ,  String si,int SS, String st, int QtdTe, int IDat){
             this.idSerie = 0;
             Nome = n;
             AnoLancamento = a;
@@ -37,6 +38,7 @@ public class Serie implements Registro {
             SinopseSize = SS;
             Streaming = st;
             QtdTemporada = QtdTe;
+            IDator = IDat;
         }
 
         public Serie() {
@@ -47,6 +49,7 @@ public class Serie implements Registro {
         SinopseSize = 0;
         Streaming = "";
         QtdTemporada = 0;
+        IDator = 0;
         }
 
         public void setId(int id) {
@@ -97,6 +100,14 @@ public class Serie implements Registro {
             return QtdTemporada;
         }
 
+        public void setIDator(int IDator){
+            this.IDator = IDator;
+        }
+
+        public int getIDator(){
+            return IDator;
+        }
+
         public void SinopzeSize(int SS){
             this.SinopseSize = SS;
         }
@@ -118,6 +129,7 @@ public class Serie implements Registro {
         dos.writeUTF(Sinopse);
         dos.writeUTF(Streaming);
         dos.writeInt(QtdTemporada);
+        dos.writeInt(IDator);
 
         return b.toByteArray();
     }
@@ -134,6 +146,7 @@ public class Serie implements Registro {
         Sinopse = dis.readUTF();
         Streaming = dis.readUTF();
         QtdTemporada = dis.readInt();
+        IDator = dis.readInt();
     }
 }
 
