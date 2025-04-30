@@ -271,4 +271,24 @@ public class ViewSerie {
         }
     }
     
+    public void linkarSerieAtor(int idAtor, int idSerie){
+        System.out.println("Linkar Ator à Série: ");
+        System.out.println("ID do Ator: " + idAtor);
+        System.out.println("ID da Série: " + idSerie);
+
+        // Confirmar a criação
+        System.out.print("\nConfirma a inclusão do ator na série? (S/N) ");
+        String resp = sc.nextLine().toUpperCase(); // Usar nextLine() para capturar a linha inteira
+        if (resp.isEmpty() || !(resp.equals("S") || resp.equals("N"))) {
+            System.out.println("Resposta inválida. Por favor, digite 'S' para Sim ou 'N' para Não.");
+            return;
+        }
+
+        if(resp.equals("S")) {
+            
+            System.out.println("Ator vinculado à série com sucesso!");
+        } else{
+            System.out.println("Vinculação de ator à série cancelada.");
+        }
+    }
 }

@@ -189,6 +189,7 @@ public class MenuAtor {
             System.out.println("4 - Excluir ator");
             System.out.println("5 - Buscar ator");
             System.out.println("6 - Linkar ator a série");
+            System.err.println("7 - Deslinkar ator a série");
             System.out.println("0 - Voltar");
 
             System.out.print("\nOpção: ");
@@ -216,6 +217,9 @@ public class MenuAtor {
                     break;
                 case 6:
                     linkarAtorSerie(); // check
+                    break;
+                case 7:
+                    deslinkarAtorSerie(); // check
                     break;
                 case 0:
                     break;
@@ -298,7 +302,53 @@ public class MenuAtor {
         }
         
     }
+    
+    public void deslinkarAtorSerie() throws Exception {
+        String AtorNome = viewAtor.lerNomeAtor();
+        if (AtorNome.trim().isEmpty()) {
+            System.out.println("Termo de busca inválido!");
+            return;
+        }
 
+        // Realizar a busca
+        ArrayList<Ator> resultados = relacionamento.buscarAtorPorNome(AtorNome);
+
+        // Exibir resultados
+        viewAtor.mostraResultadoBuscaAtores(resultados);
+
+        if (resultados.isEmpty()) {
+            System.out.println("Nenhum ator encontrado com o nome: " + AtorNome);
+            return;
+        }
+
+        // Selecionar Ator para deslinkar
+        System.out.print("\nDigite o ID do ator que deseja deslinkar de uma série (0 para cancelar): ");
+        int idSelecionado = sc.nextInt();
+        sc.nextLine(); // Limpar buffer
+
+        Ator A = arqAtor.read(idSelecionado);
+        if (A == null) {
+            System.out.println("Ator não encontrado!");
+            return;
+        }
+
+        if (A.getIDSerie() == 0) {
+            System.out.println("O ator não está vinculado a nenhuma série!");
+            return;
+        }
+
+        A.setIDSerie(0);
+        
+        boolean result = arqAtor.update(A);
+        
+        if (result) {
+            relacionamento.atualizarIndicesAposOperacao(A, "update");
+            System.out.println("Ator desvinculado da série com sucesso!");
+        } else {
+            System.out.println("Erro ao desvincular ator da série!");
+        }
+    }
+    
     public void gerenciarAtoresDeSerie(int idSerie) throws Exception {
         Serie serie = arqSerie.read(idSerie);
         if (serie == null) {
@@ -516,6 +566,9 @@ public class MenuAtor {
 
         if (!confirmacao.equals("S")) {
             System.out.println("Operação cancelada.");
+            return;
+        }else if (AtorParaExcluir.getIDSerie() != 0) {
+            System.out.println("O ator esta vinculado a uma série, não é possível excluí-lo.");
             return;
         }
 
