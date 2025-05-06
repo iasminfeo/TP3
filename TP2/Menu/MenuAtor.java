@@ -75,13 +75,11 @@ public class MenuAtor {
             return;
         }
 
-        // Realizar a busca em todos os episódios
         ArrayList<Ator> resultados = relacionamento.buscarAtorPorNome(termoBusca);
 
         // Exibir resultados
         viewAtor.mostraResultadoBuscaAtores(resultados);
 
-        // Se houver resultados, perguntar se quer selecionar um episódio
         if (!resultados.isEmpty()) {
             System.out.print("\nDeseja selecionar um Ator para ver mais detalhes? (S/N): ");
             String resposta = sc.nextLine().toUpperCase();
@@ -92,12 +90,9 @@ public class MenuAtor {
                 if (idSelecionado > 0) {
                     Ator AtorSelecionado = arqAtor.read(idSelecionado);
 
-                    // Mostrar também o nome da série
-                    if (AtorSelecionado != null) {
-                        Serie Serie = arqSerie.read(AtorSelecionado.getIDSerie());
-                        String nomeSerie = (Serie != null) ? Serie.getNome() : "Série não encontrada";
-                        System.out.println("Série: " + nomeSerie);
-                    }
+                    // Mostrar também o nome das série linkadas ao ator
+                   ArrayList<Serie> series = relacionamento.getSeriesDoAtor(idSelecionado);
+                    viewAtor.mostraResultadoBuscaSeries(series);
 
                     viewAtor.mostrarAtor(AtorSelecionado);
                 }
@@ -106,7 +101,7 @@ public class MenuAtor {
     }
 
     public void listarAtors() throws Exception {
-        System.out.println("\nSéries disponíveis:");
+        System.out.println("\n Atores disponíveis:");
         int ultimoId = arqAtor.ultimoId();
         boolean temAtors = false;
 
@@ -331,14 +326,56 @@ public class MenuAtor {
             System.out.println("Ator não encontrado!");
             return;
         }
-
+        
         if (A.getIDSerie() == 0) {
             System.out.println("O ator não está vinculado a nenhuma série!");
             return;
         }
 
-        A.setIDSerie(0);
+        String termoBusca = viewSerie.LerNomeSerie();
+        if (termoBusca.trim().isEmpty()) {
+            System.out.println("Termo de busca inválido!");
+            return;
+        }
+
+        // Realizar a busca
+        ArrayList<Serie> resultado = relacionamento.buscarSeriePorNome(termoBusca);
+
+        // Exibir resultados
+        viewSerie.mostraResultadoBuscaSeries(resultado);
+
+        if (resultados.isEmpty()) {
+            System.out.println("Nenhuma série encontrada com o nome: " + termoBusca);
+            return;
+        }
+
+        // Selecionar série para linkar
+        System.out.print("\nDigite o ID da série que deseja deslinkar ao ator (0 para cancelar): ");
+        int idSerieSelecionada = sc.nextInt();
+        sc.nextLine(); // Limpar buffer
+
+        Serie S = arqSerie.read(idSerieSelecionada);
+        if (S == null) {
+            System.out.println("Série não encontrada!");
+            return;
+        }
         
+        if (S.getIDator() == 0) {
+            System.out.println("A série não está vinculada a nenhuma ator!");
+            return;
+        }
+
+        if (A.getIDSerie() != S.getId()) {
+            System.out.println("O ator não está vinculado a esta série!");
+            return;
+        }
+
+        // Remover o relacionamento
+        relacionamento.removerRelacionamento(A.getIDSerie(), A.getId());
+        A.setIDSerie(0);
+
+        viewAtor.deslinkarAtorSerie(A.getId(), S.getId());
+
         boolean result = arqAtor.update(A);
         
         if (result) {

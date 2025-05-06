@@ -1,6 +1,7 @@
 package TP2.View;
 
 import TP2.Model.*;
+import TP2.Service.ParIDSerieAtor;
 
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -30,6 +31,27 @@ public class ViewAtor {
             System.out.println("Ator vinculado à série com sucesso!");
         } else{
             System.out.println("Vinculação de ator à série cancelada.");
+        }
+    }
+
+    public void deslinkarAtorSerie(int Ator, int serie){
+        System.out.println("Desvincular Ator da Série: ");
+        System.out.println("ID do Ator: " + Ator);
+        System.out.println("ID da Série: " + serie);
+
+        // Confirmar a criação
+        System.out.print("\nConfirma a desvinculação do ator da série? (S/N) ");
+        String resp = sc.nextLine().toUpperCase(); // Usar nextLine() para capturar a linha inteira
+        if (resp.isEmpty() || !(resp.equals("S") || resp.equals("N"))) {
+            System.out.println("Resposta inválida. Por favor, digite 'S' para Sim ou 'N' para Não.");
+            return;
+        }
+
+        if(resp.equals("S")) {
+            
+            System.out.println("Ator desvinculado da série com sucesso!");
+        } else{
+            System.out.println("Desvinculação de ator da série cancelada.");
         }
     }
 
@@ -108,7 +130,22 @@ public class ViewAtor {
         }
     }
 
-    public Ator alterarAtor(int idSerie, Ator A){
+    public void mostraResultadoBuscaSeries(ArrayList<Serie> series){
+        if(series.isEmpty()){
+            System.out.println("Nenhuma série encontrada com o nome informado.");
+            return;
+        }
+
+        System.out.println("\n=== Séries Encontradas ===");
+        System.out.println("Total: " + series.size() + " série(s) encontrada(s).");
+        
+        for (Serie serie : series) {
+            System.out.println("\nID: " + serie.getId() + " | Nome:" + serie.getNome());
+        }
+
+    }
+
+    public Ator alterarAtor(int idSerie, Ator A) throws Exception {
         System.out.println("Alteração de ator:");
         if (A != null) {
             System.out.println("Ator Encontrado: ");
@@ -191,11 +228,11 @@ public class ViewAtor {
             System.out.println("ID: " + ator.getId() + " | Nome: " + ator.getNome() + " | Gênero: " + ator.getGenero());
         }
     }
-
-    public void mostrarAtor(Ator A) {
+    
+    public void mostrarAtor(Ator A) throws Exception {
+        System.out.println("\n=== Ator Encontrado ===");
         System.out.println("ID: " + A.getId());
         System.out.println("Nome: " + A.getNome());
-        System.out.println("ID da Série: " + A.getIDSerie());
         System.out.println("Gênero: " + A.getGenero());
     }
 }

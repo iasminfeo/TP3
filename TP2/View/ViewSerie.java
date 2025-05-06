@@ -291,4 +291,25 @@ public class ViewSerie {
             System.out.println("Vinculação de ator à série cancelada.");
         }
     }
+
+    public void deslinkarSerieAtor(int Ator, int serie){
+        System.out.println("Desvincular Ator da Série: ");
+        System.out.println("ID do Ator: " + Ator);
+        System.out.println("ID da Série: " + serie);
+
+        // Confirmar a criação
+        System.out.print("\nConfirma a desvinculação do ator da série? (S/N) ");
+        String resp = sc.nextLine().toUpperCase(); // Usar nextLine() para capturar a linha inteira
+        if (resp.isEmpty() || !(resp.equals("S") || resp.equals("N"))) {
+            System.out.println("Resposta inválida. Por favor, digite 'S' para Sim ou 'N' para Não.");
+            return;
+        }
+
+        if(resp.equals("S")) {
+            
+            System.out.println("Ator desvinculado da série com sucesso!");
+        } else{
+            System.out.println("Desvinculação de ator da série cancelada.");
+        }
+    }
 }

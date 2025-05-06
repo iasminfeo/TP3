@@ -335,7 +335,92 @@ public class MenuSerie {
         }
     }
 
-    public void desvincularAtorSerie(){
+    public void desvincularAtorSerie() throws Exception{
+        // Buscar série pelo nome
+        String termoBusca = viewSerie.LerNomeSerie();
+        if (termoBusca.trim().isEmpty()) {
+            System.out.println("Termo de busca inválido!");
+            return;
+        }
 
+        // Realizar a busca
+        ArrayList<Serie> resultado = relacionamento.buscarSeriePorNome(termoBusca);
+
+        // Exibir resultados
+        viewSerie.mostraResultadoBuscaSeries(resultado);
+
+        if (resultado.isEmpty()) {
+            System.out.println("Nenhuma série encontrada com o nome: " + termoBusca);
+            return;
+        }
+
+        // Selecionar série para linkar
+        System.out.print("\nDigite o ID da série que deseja deslinkar ao ator (0 para cancelar): ");
+        int idSerieSelecionada = sc.nextInt();
+        sc.nextLine(); // Limpar buffer
+
+        Serie S = arqSerie.read(idSerieSelecionada);
+        if (S == null) {
+            System.out.println("Série não encontrada!");
+            return;
+        }
+        
+        if (S.getIDator() == 0) {
+            System.out.println("A série não está vinculada a nenhuma ator!");
+            return;
+        }
+
+        String AtorNome = viewAtor.lerNomeAtor();
+        if (AtorNome.trim().isEmpty()) {
+            System.out.println("Termo de busca inválido!");
+            return;
+        }
+
+        // Realizar a busca
+        ArrayList<Ator> resultados = relacionamentoAtorSerie.buscarAtorPorNome(AtorNome);
+
+        // Exibir resultados
+        viewAtor.mostraResultadoBuscaAtores(resultados);
+
+        if (resultados.isEmpty()) {
+            System.out.println("Nenhum ator encontrado com o nome: " + AtorNome);
+            return;
+        }
+
+        // Selecionar Ator para deslinkar
+        System.out.print("\nDigite o ID do ator que deseja deslinkar de uma série (0 para cancelar): ");
+        int idSelecionado = sc.nextInt();
+        sc.nextLine(); // Limpar buffer
+
+        Ator A = arqAtor.read(idSelecionado);
+        if (A == null) {
+            System.out.println("Ator não encontrado!");
+            return;
+        }
+        
+        if (A.getIDSerie() == 0) {
+            System.out.println("O ator não está vinculado a nenhuma série!");
+            return;
+        }
+
+        if (A.getIDSerie() != S.getId()) {
+            System.out.println("O ator não está vinculado a esta série!");
+            return;
+        }
+
+        // Remover o relacionamento
+        relacionamento.removerRelacionamento(A.getIDSerie(), A.getId());
+        S.setIDator(0);
+
+        viewAtor.deslinkarAtorSerie(A.getId(), S.getId());
+        
+        boolean result = arqSerie.update(S);
+        
+        if (result) {
+            relacionamentoAtorSerie.atualizarIndicesAposOperacao(A, "update");
+            System.out.println("Ator desvinculado da série com sucesso!");
+        } else {
+            System.out.println("Erro ao desvincular ator da série!");
+        }
     }
 }

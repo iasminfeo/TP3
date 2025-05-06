@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import TP2.Model.Serie;
 import TP2.Model.Ator;
+import java.lang.reflect.Array;
 
 public class RelacionamentoSerieAtor {
 
@@ -339,6 +340,45 @@ public class RelacionamentoSerieAtor {
         return false;
     }
     
+    //obter todas series de um ator
+    public ArrayList<Serie> getSeriesDoAtor(int idAtor) throws Exception{
+        ArrayList<Serie> series = new ArrayList<>();
+
+        try {
+            ParIDSerieAtor parBusca = new ParIDSerieAtor(-1, idAtor);
+            ArrayList<ParIDSerieAtor> pares = arvoreRelacionamento.read(parBusca);
+            for(ParIDSerieAtor par : pares) {
+                System.out.println("Encontrado par: " + par.getIdSerie() + ", " + par.getIdAtor());
+            }
+            for (ParIDSerieAtor par : pares) {
+                if (par.getIdAtor() == idAtor) {
+                    Serie serie = arqSerie.read(par.getIdSerie());
+                    if (serie != null) {
+                        System.out.println("Encontrada série ID=" + serie.getId() + " para atisódio ID=" + idAtor);
+                        series.add(serie);
+                    }
+                } else {
+                    // Como a árvore B+ retorna todos os elementos maiores ou iguais,
+                    // podemos parar quando o idAtor for diferente
+                    break;
+                }
+            }
+        }catch(Exception e) {
+            System.err.println("ERRO na busca por séries: " + e.getMessage());
+            
+            // Em caso de erro, tenta o método alternativo
+            int ultimoId = arqSerie.ultimoId();
+            for (int i = 1; i <= ultimoId; i++) {
+                Serie serie = arqSerie.read(i);
+                if (serie != null && serie.getId() == idAtor) {
+                    series.add(serie);
+                }
+            }
+        }
+
+        return series;
+    }
+
     // Obter todos os atisódios de uma série
     public ArrayList<Ator> getAtoresDaSerie(int idSerie) throws Exception {
         ArrayList<Ator> Ators = new ArrayList<>();
