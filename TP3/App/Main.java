@@ -1,10 +1,10 @@
-package TP2.App;
+package App;
 
-import TP2.Menu.MenuAtor;
-import TP2.Menu.MenuEpisodio;
-import TP2.Menu.MenuSerie;
-import TP2.Model.*;
-import TP2.Service.*;
+import Menu.MenuAtor;
+import Menu.MenuEpisodio;
+import Menu.MenuSerie;
+import Model.*;
+import Service.*;
 import java.util.*;
 
 public class Main {
@@ -19,16 +19,18 @@ public class Main {
         try {
             sc = new Scanner(System.in);
             int opcao;
-            
-            //incializar os arquivos
+
+            // incializar os arquivos
             arqEpisodios = new Arquivo<>("Episodios", Episodio.class.getConstructor());
             arqSerie = new Arquivo<>("Serie", Serie.class.getConstructor());
             arqAtores = new Arquivo<>("Atores", Ator.class.getConstructor());
 
             // Inicializa os controladores
+            IndiceInvertido indice = new IndiceInvertido();
+
             MenuSerie menuSerie = new MenuSerie(sc, arqSerie, arqEpisodios, arqAtores);
             MenuEpisodio menuEp = new MenuEpisodio(sc, arqEpisodios, arqSerie);
-            MenuAtor menuAt = new MenuAtor(sc, arqAtores, arqSerie);
+            MenuAtor menuAt = new MenuAtor(sc, arqAtores, arqSerie, indice);
 
             do {
 

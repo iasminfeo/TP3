@@ -1,4 +1,4 @@
-package TP2.View;
+package View;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 
-import TP2.Model.*;
+import Model.*;
 
 
 public class ViewSerie {

@@ -1,11 +1,11 @@
-package TP2.Service;
+package Service;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.lang.reflect.Constructor;
 
-import TP2.Interfaces.*;
+import Interfaces.*;
 
 /**
  * Arquivo: Classe generica que representa um arquivo de registros.
@@ -19,15 +19,15 @@ public class Arquivo<T extends Registro> {
     HashExtensivel<ParIDEndereco> indiceDireto;
 
     public Arquivo(String na, Constructor<T> c) throws Exception {
-        File d = new File(".\\TP2\\dados");
+        File d = new File(".\\TP3\\dados");
         if (!d.exists())
             d.mkdir();
 
-        d = new File(".\\TP2\\dados\\" + na);
+        d = new File(".\\TP3\\dados\\" + na);
         if (!d.exists())
             d.mkdir();
 
-        this.nomeArquivo = ".\\TP2\\dados\\" + na + "\\" + na + ".db";
+        this.nomeArquivo = ".\\TP3\\dados\\" + na + "\\" + na + ".db";
         this.construtor = c;
         arquivo = new RandomAccessFile(this.nomeArquivo, "rw");
         if (arquivo.length() < TAM_CABECALHO) {
@@ -39,8 +39,8 @@ public class Arquivo<T extends Registro> {
         indiceDireto = new HashExtensivel<>(
                 ParIDEndereco.class.getConstructor(),
                 4,
-                ".\\TP2\\dados\\" + na + "\\" + na + ".d.db", // diretório
-                ".\\TP2\\dados\\" + na + "\\" + na + ".c.db" // cestos
+                ".\\TP3\\dados\\" + na + "\\" + na + ".d.db", // diretório
+                ".\\TP3\\dados\\" + na + "\\" + na + ".c.db" // cestos
         );
     } // end Arquivo ( )
 

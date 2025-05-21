@@ -1,40 +1,42 @@
-package TP2.Menu;
+package Menu;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Scanner;
 
-import TP2.Model.Episodio;
-import TP2.Model.Serie;
-import TP2.Service.Arquivo;
-import TP2.Service.ParIDSerieEpisodio;
-import TP2.Service.RelacionamentoSerieEpisodio;
-import TP2.View.ViewEpisodio;
-import TP2.View.ViewSerie;
+import Model.Episodio;
+import Model.Serie;
+import Model.ElementoLista;
+import Service.Arquivo;
+import Service.IndiceInvertido;
+import Service.RelacionamentoSerieEpisodio;
+import View.ViewEpisodio;
+import View.ViewSerie;
 
 public class MenuEpisodio {
+
     public Scanner sc = new Scanner(System.in);
     Arquivo<Episodio> arqEpisodios;
     Arquivo<Serie> arqSerie;
     ViewEpisodio viewEpisodio;
     ViewSerie viewSerie;
     RelacionamentoSerieEpisodio relacionamento;
+    IndiceInvertido indice;
 
-    public MenuEpisodio(Scanner sc, Arquivo<Episodio> arqEpisodios, Arquivo<Serie> arqSerie) {
+    public MenuEpisodio(Scanner sc, Arquivo<Episodio> arqEpisodios, Arquivo<Serie> arqSerie) throws Exception {
         this.sc = sc;
         this.arqEpisodios = arqEpisodios;
         this.arqSerie = arqSerie;
         this.viewEpisodio = new ViewEpisodio(sc);
         this.viewSerie = new ViewSerie(sc);
         this.relacionamento = new RelacionamentoSerieEpisodio(arqSerie, arqEpisodios);
+        this.indice = new IndiceInvertido();
     }
 
     public void menuEpisodio() throws Exception {
-
         int opcao;
         do {
-
             System.out.println("\n\nAEDsIII");
             System.out.println("-------");
             System.out.println("> Início > Episódio");
@@ -51,120 +53,33 @@ public class MenuEpisodio {
             }
 
             switch (opcao) {
-                case 1:
-                    listarSeries(); // check
-                    break;
-                case 2:
-                    gerenciarEpisodiosPorNome(); //check
-                    break;
-                case 3:
-                    buscarEpisodioPorNome();
-                    break;
-                case 0:
-                    break;
-                default:
-                    System.out.println("Opção inválida!");
-                    break;
+                case 1 -> listarSeries();
+                case 2 -> gerenciarEpisodiosPorNome();
+                case 3 -> buscarEpisodioPorNome();
+                case 0 -> {}
+                default -> System.out.println("Opção inválida!");
             }
 
         } while (opcao != 0);
     }
 
-    private void gerenciarEpisodiosPorNome() throws Exception {
-        String termoBusca = viewSerie.LerNomeSerie();
-        
-        if (termoBusca.trim().isEmpty()) {
-            System.out.println("Termo de busca inválido!");
-            return;
-        }
-        
-        // Realizar a busca
-        ArrayList<Serie> resultados = relacionamento.buscarSeriePorNome(termoBusca);
-        
-        // Exibir resultados
-        viewSerie.mostraResultadoBuscaSeries(resultados);
-        
-        if (resultados.isEmpty()) {
-            return;
-        }
-        
-        // Selecionar série para gerenciar episódios
-        System.out.print("\nDigite o ID da série para gerenciar seus episódios (0 para cancelar): ");
-        int idSelecionado = sc.nextInt();
-        sc.nextLine(); // Limpar buffer
-        
-        if (idSelecionado <= 0) {
-            System.out.println("Operação cancelada.");
-            return;
-        }
-        
-        // Verificar se o ID está na lista
-        boolean encontrado = false;
-        Serie serieSelecionada = null;
-        for (Serie s : resultados) {
-            if (s.getId() == idSelecionado) {
-                encontrado = true;
-                serieSelecionada = s;
-                break;
+    public void buscarEpisodioPorNome() throws Exception {
+        String termo = viewEpisodio.lerNomeEpisodio();
+
+        ElementoLista[] elementos = indice.buscarEpisodiosPorIndice(termo);
+
+        Arrays.sort(elementos, Comparator.comparing(ElementoLista::getFrequencia).reversed());
+
+        ArrayList<Episodio> episodios = new ArrayList<>();
+
+        for (ElementoLista el : elementos) {
+            Episodio ep = arqEpisodios.read(el.getId());
+            if (ep != null) {
+                episodios.add(ep);
             }
         }
-        
-        if (!encontrado) {
-            System.out.println("ID não encontrado na lista!");
-            return;
-        }
-        
-        gerenciarEpisodiosDeSerie(serieSelecionada.getId());
-    }
-    
-    //somente para testes
-    private void buscarEpisodioPorId() throws Exception {
-        int id = viewEpisodio.lerIDEpisodio();
-        Episodio episodio = arqEpisodios.read(id);
-        if (episodio != null) {
-            Serie serie = arqSerie.read(episodio.getIdSerie());
-            String nomeSerie = (serie != null) ? serie.getNome() : "Série não encontrada";
-            System.out.println("Série: " + nomeSerie);
-        }
-        viewEpisodio.mostraEpisodio(episodio);
-    }
-    
-    private void buscarEpisodioPorNome() throws Exception {
-        String termoBusca = viewEpisodio.lerNomeEpisodio();
-        
-        if (termoBusca.trim().isEmpty()) {
-            System.out.println("Termo de busca inválido!");
-            return;
-        }
-        
-        // Realizar a busca em todos os episódios
-        ArrayList<Episodio> resultados = relacionamento.buscarEpisodioPorNome(termoBusca);
-        
-        // Exibir resultados
-        viewEpisodio.mostraResultadoBuscaEpisodios(resultados);
-        
-        // Se houver resultados, perguntar se quer selecionar um episódio
-        if (!resultados.isEmpty()) {
-            System.out.print("\nDeseja selecionar um episódio para ver mais detalhes? (S/N): ");
-            String resposta = sc.nextLine().toUpperCase();
-            
-            if (resposta.equals("S")) {
-                int idSelecionado = viewEpisodio.selecionaEpisodioDoResultado(resultados);
-                
-                if (idSelecionado > 0) {
-                    Episodio episodioSelecionado = arqEpisodios.read(idSelecionado);
-                    
-                    // Mostrar também o nome da série
-                    if (episodioSelecionado != null) {
-                        Serie serie = arqSerie.read(episodioSelecionado.getIdSerie());
-                        String nomeSerie = (serie != null) ? serie.getNome() : "Série não encontrada";
-                        System.out.println("Série: " + nomeSerie);
-                    }
-                    
-                    viewEpisodio.mostraEpisodio(episodioSelecionado);
-                }
-            }
-        }
+
+        viewEpisodio.mostraResultadoBuscaEpisodios(episodios);
     }
 
     public void listarSeries() throws Exception {
@@ -181,9 +96,41 @@ public class MenuEpisodio {
         }
 
         if (!temSeries) {
-            System.out.println("Não há séries cadastradas. Cadastre uma série primeiro.");
+            System.out.println("Não há séries cadastradas.");
+        }
+    }
+
+    public void gerenciarEpisodiosPorNome() throws Exception {
+        String termo = viewSerie.LerNomeSerie();
+
+        ElementoLista[] elementos = indice.buscarSeriesPorIndice(termo);
+
+        Arrays.sort(elementos, Comparator.comparing(ElementoLista::getFrequencia).reversed());
+
+        ArrayList<Serie> series = new ArrayList<>();
+
+        for (ElementoLista el : elementos) {
+            Serie s = arqSerie.read(el.getId());
+            if (s != null) {
+                series.add(s);
+            }
         }
 
+        viewSerie.mostraResultadoBuscaSeries(series);
+
+        if (series.isEmpty()) return;
+
+        System.out.print("\nDigite o ID da série para gerenciar seus episódios (0 para cancelar): ");
+        int idSelecionado = sc.nextInt();
+        sc.nextLine();
+
+        Serie serie = arqSerie.read(idSelecionado);
+        if (serie == null) {
+            System.out.println("Série não encontrada.");
+            return;
+        }
+
+        gerenciarEpisodiosDeSerie(serie.getId());
     }
 
     private void gerenciarEpisodiosDeSerie(int idSerie) throws Exception {
@@ -207,14 +154,14 @@ public class MenuEpisodio {
             System.out.print("Escolha uma opção: ");
 
             op = sc.nextInt();
-            sc.nextLine(); // Limpar buffer
+            sc.nextLine();
 
             switch (op) {
-                case 1 -> incluirEpisodio(idSerie); // check
-                case 2 -> buscarEpisodioNaSeriePorID(idSerie); //check
-                case 3 -> alterarEpisodioPorNome(idSerie); //check
-                case 4 -> excluirEpisodioPorNome(idSerie); //check
-                case 5 -> listarEpisodiosDaSerie(idSerie); //check
+                case 1 -> incluirEpisodio(idSerie);
+                case 2 -> buscarEpisodioNaSeriePorID(idSerie);
+                case 3 -> alterarEpisodioPorNome(idSerie);
+                case 4 -> excluirEpisodioPorNome(idSerie);
+                case 5 -> listarEpisodiosDaSerie(idSerie);
                 default -> {
                     if (op != 0) {
                         System.out.println("Opção inválida!");
@@ -225,13 +172,6 @@ public class MenuEpisodio {
     }
 
     public void incluirEpisodio(int idSerie) throws Exception {
-        // Verificar se a série existe
-        Serie serie = arqSerie.read(idSerie);
-        if (serie == null) {
-            System.out.println("Série não encontrada.");
-            return;
-        }
-
         Episodio episodio = viewEpisodio.incluirEpisodio(idSerie);
         if (episodio == null) {
             System.out.println("Operação cancelada.");
@@ -239,214 +179,111 @@ public class MenuEpisodio {
         }
 
         int id = arqEpisodios.create(episodio);
-
-        // Importante: atualiza o ID no objeto episódio após a criação
         episodio.setId(id);
+        indice.inserirEpisodio(episodio);
 
-        
+        System.out.println("Episódio criado com sucesso! ID: " + id);
     }
 
     public void alterarEpisodioPorNome(int idSerie) throws Exception {
-        String nomeEP = viewEpisodio.lerNomeEpisodio();
+        String termo = viewEpisodio.lerNomeEpisodio();
 
-        if(nomeEP.trim().isEmpty()){
-            System.out.println("Nome inváido.");
-            return;
+        ElementoLista[] elementos = indice.buscarEpisodiosPorIndice(termo);
+
+        Arrays.sort(elementos, Comparator.comparing(ElementoLista::getFrequencia).reversed());
+
+        ArrayList<Episodio> episodios = new ArrayList<>();
+
+        for (ElementoLista el : elementos) {
+            Episodio ep = arqEpisodios.read(el.getId());
+            if (ep != null && ep.getIdSerie() == idSerie) {
+                episodios.add(ep);
+            }
         }
 
-        // Realizar a busca em episódios da série específica
-        ArrayList<Episodio> resultados = relacionamento.buscarEpisodioPorNomeEmSerie(nomeEP, idSerie);
-        
-        // Exibir resultados
-        viewEpisodio.mostraResultadoBuscaEpisodios(resultados);
-        
-        if (resultados.isEmpty()) {
-            return;
-        }
-        
-        // Selecionar episódio para alterar
+        viewEpisodio.mostraResultadoBuscaEpisodios(episodios);
+        if (episodios.isEmpty()) return;
+
         System.out.print("\nDigite o ID do episódio que deseja alterar (0 para cancelar): ");
         int idSelecionado = sc.nextInt();
-        sc.nextLine(); // Limpar buffer
-        
-        if (idSelecionado <= 0) {
-            System.out.println("Operação cancelada.");
+        sc.nextLine();
+
+        Episodio epAtual = arqEpisodios.read(idSelecionado);
+        if (epAtual == null) {
+            System.out.println("Episódio não encontrado.");
             return;
         }
-        
-        // Verificar se o ID está na lista
-        boolean encontrado = false;
-        for (Episodio ep : resultados) {
-            if (ep.getId() == idSelecionado) {
-                encontrado = true;
-                break;
-            }
-        }
-        
-        if (!encontrado) {
-            System.out.println("ID não encontrado na lista!");
+
+        Episodio epNovo = viewEpisodio.alterarEpisodio(idSerie, epAtual);
+        if (epNovo == null) {
+            System.out.println("Cancelado.");
             return;
         }
-        
-        // Continuar com a alteração do episódio
-        alterarEpisodio(idSerie, idSelecionado);
+
+        indice.atualizarEpisodio(epAtual.getNome(), epNovo);
+
+        epNovo.setId(idSelecionado);
+        arqEpisodios.update(epNovo);
+
+        System.out.println("Episódio alterado com sucesso!");
     }
 
-    private void alterarEpisodio(int idSerie, int id) throws Exception {
-        // Verificar se o episódio existe e pertence à série atual
-        Episodio episodioAtual = arqEpisodios.read(id);
-        if (episodioAtual == null) {
-            System.out.println("Episódio não encontrado.");
-            return;
-        }
-        
-        if (episodioAtual.getIdSerie() != idSerie) {
-            System.out.println("Este episódio pertence a outra série. Não é possível editar.");
-            return;
-        }
-        
-        Episodio episodioNovo = viewEpisodio.alterarEpisodio(idSerie, episodioAtual);
-        if (episodioNovo == null) {
-            System.out.println("Operação cancelada.");
-            return;
-        }
-        
-        // Remover o relacionamento antigo
-        relacionamento.removerRelacionamento(episodioAtual.getIdSerie(), episodioAtual.getId());
-        
-        episodioNovo.setId(id);
-        boolean resultado = arqEpisodios.update(episodioNovo);
-        
-        if (resultado) {
-            // Adicionar o novo relacionamento
-            relacionamento.atualizarIndicesAposOperacao(episodioNovo, "update");
-            System.out.println("Episódio atualizado com sucesso!");
-        } else {
-            System.out.println("Erro ao atualizar episódio.");
-        }
-    }
-    //so para teste
-    private void excluirEpisodioID() throws Exception {
-        int id = viewEpisodio.lerIDEpisodio();
-        // Verificar se o episódio existe antes de excluir
-        Episodio episodio = arqEpisodios.read(id);
-        if (episodio == null) {
-            System.out.println("Episódio não encontrado.");
-            return;
-        }
-        
-        // Confirmar exclusão
-        System.out.print("\nConfirmar exclusão do episódio \"" + episodio.getNome() + "\"? (S/N): ");
-        String confirmacao = sc.nextLine().toUpperCase();
-        if (!confirmacao.equals("S")) {
-            System.out.println("Operação cancelada.");
-            return;
-        }
-        
-        // Remover da árvore B+ antes de excluir do arquivo
-        relacionamento.atualizarIndicesAposOperacao(episodio, "delete");
-        
-        boolean resultado = arqEpisodios.delete(id);
-        System.out.println(resultado ? "Episódio excluído com sucesso!" : "Erro ao excluir episódio.");
-    }
-    
-    private void excluirEpisodioPorNome(int idSerie) throws Exception {
-        String termoBusca = viewEpisodio.lerNomeEpisodio();
-        
-        if (termoBusca.trim().isEmpty()) {
-            System.out.println("Termo de busca inválido!");
-            return;
-        }
-        
-        // Realizar a busca em episódios da série específica
-        ArrayList<Episodio> resultados = relacionamento.buscarEpisodioPorNomeEmSerie(termoBusca, idSerie);
-        
-        // Exibir resultados
-        viewEpisodio.mostraResultadoBuscaEpisodios(resultados);
-        
-        if (resultados.isEmpty()) {
-            return;
-        }
-        
-        // Selecionar episódio para excluir
-        System.out.print("\nDigite o ID do episódio que deseja excluir (0 para cancelar): ");
-        int idSelecionado = sc.nextInt();
-        sc.nextLine(); // Limpar buffer
-        
-        if (idSelecionado <= 0) {
-            System.out.println("Operação cancelada.");
-            return;
-        }
-        
-        // Verificar se o ID está na lista
-        boolean encontrado = false;
-        Episodio episodioParaExcluir = null;
-        
-        for (Episodio ep : resultados) {
-            if (ep.getId() == idSelecionado) {
-                encontrado = true;
-                episodioParaExcluir = ep;
-                break;
+    public void excluirEpisodioPorNome(int idSerie) throws Exception {
+        String termo = viewEpisodio.lerNomeEpisodio();
+
+        ElementoLista[] elementos = indice.buscarEpisodiosPorIndice(termo);
+
+        Arrays.sort(elementos, Comparator.comparing(ElementoLista::getFrequencia).reversed());
+
+        ArrayList<Episodio> episodios = new ArrayList<>();
+
+        for (ElementoLista el : elementos) {
+            Episodio ep = arqEpisodios.read(el.getId());
+            if (ep != null && ep.getIdSerie() == idSerie) {
+                episodios.add(ep);
             }
         }
-        
-        if (!encontrado) {
-            System.out.println("ID não encontrado na lista!");
+
+        viewEpisodio.mostraResultadoBuscaEpisodios(episodios);
+        if (episodios.isEmpty()) return;
+
+        System.out.print("\nDigite o ID do episódio que deseja excluir (0 para cancelar): ");
+        int idSelecionado = sc.nextInt();
+        sc.nextLine();
+
+        Episodio ep = arqEpisodios.read(idSelecionado);
+        if (ep == null) {
+            System.out.println("Episódio não encontrado.");
             return;
         }
-        
-        // Confirmar exclusão
-        System.out.print("\nConfirmar exclusão do episódio \"" + episodioParaExcluir.getNome() + "\"? (S/N): ");
-        String confirmacao = sc.nextLine().toUpperCase();
-        
-        if (!confirmacao.equals("S")) {
-            System.out.println("Operação cancelada.");
-            return;
-        }
-        
-        // Remover da árvore B+ antes de excluir do arquivo
-        relacionamento.atualizarIndicesAposOperacao(episodioParaExcluir, "delete");
-        
-        boolean resultado = arqEpisodios.delete(idSelecionado);
-        System.out.println(resultado ? "Episódio excluído com sucesso!" : "Erro ao excluir episódio.");
+
+        indice.excluirEpisodio(ep.getNome(), idSelecionado);
+        arqEpisodios.delete(idSelecionado);
+
+        System.out.println("Episódio excluído com sucesso!");
     }
 
     private void listarEpisodiosDaSerie(int idSerie) throws Exception {
-        System.out.println("\n======= LISTANDO EPISÓDIOS DA SÉRIE ID: " + idSerie + " =======");
-        
-        // Primeiro verificar se a série existe
-        Serie serie = arqSerie.read(idSerie);
-        if (serie == null) {
-            System.out.println("Série não encontrada com ID: " + idSerie);
-            return;
-        }
-        
-        System.out.println("Série: " + serie.getNome());
-        
-        // Obter episódios usando o método padrão do relacionamento
         ArrayList<Episodio> episodios = relacionamento.getEpisodiosDaSerie(idSerie);
-        
+
         if (episodios.isEmpty()) {
-            System.out.println("\nNão há episódios cadastrados para esta série.");
+            System.out.println("\nNão há episódios cadastrados.");
             return;
         }
-        
-        // Mostrar quantidade encontrada
-        System.out.println("\nForam encontrados " + episodios.size() + " episódio(s):");
-        
-        // Exibir os episódios
-        viewEpisodio.mostraListaEpisodios(episodios);
+
+        System.out.println("\n===== Episódios da Série =====");
+        for (Episodio ep : episodios) {
+            System.out.println("ID: " + ep.getId() + " | Nome: " + ep.getNome());
+        }
     }
 
     public void buscarEpisodioNaSeriePorID(int idSerie) throws Exception {
-        int id = viewSerie.lerIDSerie();
+        int id = viewEpisodio.lerIDEpisodio();
         Episodio episodio = arqEpisodios.read(id);
         if (episodio != null) {
-            Serie serie = arqSerie.read(episodio.getIdSerie());
-            String nomeSerie = (serie != null) ? serie.getNome() : "Série não encontrada";
-            System.out.println("Série: " + nomeSerie);
+            System.out.println("\nEpisódio: " + episodio.getNome());
+        } else {
+            System.out.println("\nEpisódio não encontrado.");
         }
-        viewEpisodio.mostraEpisodio(episodio);
     }
-
 }

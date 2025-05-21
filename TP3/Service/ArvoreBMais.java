@@ -11,12 +11,12 @@
  * Implementado pelo Prof. Marcos Kutova
  * v2.0 - 2021
  */
-package TP2.Service;
+package Service;
 
 import java.io.*;
 import java.util.ArrayList;
 
-import TP2.Interfaces.RegistroArvoreBMais;
+import Interfaces.RegistroArvoreBMais;
 
 import java.lang.reflect.Constructor;
 

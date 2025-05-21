@@ -1,10 +1,10 @@
-package TP2.Service;
+package Service;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
-import TP2.Model.Serie;
-import TP2.Model.Ator;
+import Model.Serie;
+import Model.Ator;
 import java.lang.reflect.Array;
 
 public class RelacionamentoSerieAtor {
@@ -40,7 +40,7 @@ public class RelacionamentoSerieAtor {
         try {
             // IMPORTANTE: Usando caminho absoluto para garantir consistência
             String diretorioAtual = System.getProperty("user.dir");
-            String caminhoData = diretorioAtual + "/TP2/dados";
+            String caminhoData = diretorioAtual + "/TP3/dados";
             
             // Verificar se o diretório de dados existe
             java.io.File dataDir = new java.io.File(caminhoData);

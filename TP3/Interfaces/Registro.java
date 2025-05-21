@@ -1,4 +1,4 @@
-package TP2.Interfaces;
+package Interfaces;
 
 import java.io.IOException;
 

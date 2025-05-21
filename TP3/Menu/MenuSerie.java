@@ -1,14 +1,11 @@
-package TP2.Menu;
+package Menu;
 
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import TP2.Model.Episodio;
-import TP2.Model.Serie;
-import TP2.Model.Ator;
-import TP2.Service.*;
-import TP2.View.*;
-
+import Model.*;
+import Service.*;
+import View.*;
 
 public class MenuSerie {
     public Scanner sc = new Scanner(System.in);
@@ -19,24 +16,23 @@ public class MenuSerie {
     ViewAtor viewAtor;
     RelacionamentoSerieEpisodio relacionamento;
     RelacionamentoSerieAtor relacionamentoAtorSerie;
+    IndiceInvertido indice;
 
-
-    public MenuSerie(Scanner sc, Arquivo<Serie> arqSerie, Arquivo<Episodio> arqEpisodio, Arquivo<Ator> arqAtor ) throws Exception{
+    public MenuSerie(Scanner sc, Arquivo<Serie> arqSerie, Arquivo<Episodio> arqEpisodio, Arquivo<Ator> arqAtor) throws Exception {
         this.sc = sc;
         this.arqSerie = arqSerie;
         this.arqEpisodios = arqEpisodio;
         this.arqAtor = arqAtor;
         this.viewSerie = new ViewSerie(sc);
         this.viewAtor = new ViewAtor(sc);
-        this.relacionamento = new RelacionamentoSerieEpisodio(arqSerie,arqEpisodio);
-        this.relacionamentoAtorSerie = new RelacionamentoSerieAtor(arqSerie,arqAtor);
+        this.relacionamento = new RelacionamentoSerieEpisodio(arqSerie, arqEpisodios);
+        this.relacionamentoAtorSerie = new RelacionamentoSerieAtor(arqSerie, arqAtor);
+        this.indice = new IndiceInvertido();
     }
 
     public void menuSerie() throws Exception {
-
         int opcao;
         do {
-
             System.out.println("\n\nAEDsIII");
             System.out.println("-------");
             System.out.println("> Início > Série");
@@ -45,8 +41,8 @@ public class MenuSerie {
             System.out.println("3 - Alterar");
             System.out.println("4 - Excluir");
             System.out.println("5 - Visualizar atores da serie");
-            System.out.println("6 -  Linkar série em um ator");
-            System.out.println("7 - Desvincular série de um ator ");
+            System.out.println("6 - Linkar série em um ator");
+            System.out.println("7 - Desvincular série de um ator");
             System.out.println("0 - Voltar");
 
             System.out.print("\nOpção: ");
@@ -57,262 +53,159 @@ public class MenuSerie {
             }
 
             switch (opcao) {
-                case 1:
-                    buscarSerieID( );
-                    break;
-                case 2:
-                    incluirSerie();
-                    break;
-                case 3:
-                    alterarSerieID();
-                    break;
-                case 4:
-                    excluirSerieNome();
-                    break;
-                case 5:
-                    visualizarAtoresSerie();
-                    break;
-                case 6:
-                    linkarAtorSerie();
-                    break;
-                case 7:
-                    desvincularAtorSerie();
-                    break;
-                case 0:
-                    break;
-                default:
-                    System.out.println("Opção inválida!");
-                    break;
+                case 1 -> buscarSeriePorNome();
+                case 2 -> incluirSerie();
+                case 3 -> alterarSerieID();
+                case 4 -> excluirSerieNome();
+                case 5 -> visualizarAtoresSerie();
+                case 6 -> linkarAtorSerie();
+                case 7 -> desvincularAtorSerie();
+                case 0 -> {}
+                default -> System.out.println("Opção inválida!");
             }
 
         } while (opcao != 0);
     }
 
-    public void buscarSerieID() throws Exception {
-        int id = viewSerie.lerIDSerie();
-        Serie S = arqSerie.read(id);
-        if(S == null){
-            System.out.println("Série não encontrada.");
-            return;
+    public void buscarSeriePorNome() throws Exception {
+        String termo = viewSerie.LerNomeSerie();
+
+        ElementoLista[] elementos = indice.buscarSeriesPorIndice(termo);
+
+        ArrayList<Serie> series = new ArrayList<>();
+
+        for (ElementoLista el : elementos) {
+            Serie s = arqSerie.read(el.getId());
+            if (s != null) {
+                series.add(s);
+            }
         }
-        viewSerie.mostraSerie(S);
+
+        System.out.println("\n===== DEBUG: Resultado da Lista Invertida =====");
+        for (ElementoLista el : elementos) {
+            System.out.println("ID: " + el.getId() + " | Peso: " + el.getFrequencia());
+        }
+
+        viewSerie.mostraResultadoBuscaSeries(series);
     }
 
     public void incluirSerie() throws Exception {
         Serie S = viewSerie.incluirSerie();
-        if(S == null){
-            System.out.println("Não foi possivel criar a sua série!");
+        if (S == null) {
+            System.out.println("Não foi possível criar a sua série!");
             return;
-        }else{
-            int id = arqSerie.create(S);
-            System.out.println("Série criada com sucesso!   ID : " + id);
         }
+        int id = arqSerie.create(S);
+        S.setId(id);
+        indice.inserirSerie(S);
+        System.out.println("Série criada com sucesso! ID : " + id);
     }
 
     public void alterarSerieID() throws Exception {
-        int id = viewSerie.lerIDSerie();
+        buscarSeriePorNome();
+        System.out.print("\nDigite o ID da série que deseja alterar (0 para cancelar): ");
+        int id = sc.nextInt();
+        sc.nextLine();
+
         Serie S = arqSerie.read(id);
-        if(S == null){
+        if (S == null) {
             System.out.println("Série não encontrada.");
             return;
         }
-        System.out.println("Série encontrada: ");
-        viewSerie.mostraSerie(S);
 
-        Serie NovaS = S;
-        NovaS = viewSerie.alterarSerie(S);
-
-        if(NovaS == null){
+        Serie NovaS = viewSerie.alterarSerie(S);
+        if (NovaS == null) {
             System.out.println("Cancelando alterações.");
             return;
         }
 
         NovaS.setId(id);
         boolean result = arqSerie.update(NovaS);
-        if(result){
-            System.out.println("Série atualizada com suscesso!");
-        }else{
+        if (result) {
+            indice.atualizarSerie(S.getNome(), NovaS);
+            System.out.println("Série atualizada com sucesso!");
+        } else {
             System.out.println("Erro no sistema ao atualizar série.");
         }
-        
     }
 
     public void excluirSerieNome() throws Exception {
-       String termoBusca = viewSerie.LerNomeSerie();
-        
-        if (termoBusca.trim().isEmpty()) {
-            System.out.println("Termo de busca inválido!");
-            return;
-        }
-        
-        // Realizar a busca
-        ArrayList<Serie> resultados = relacionamento.buscarSeriePorNome(termoBusca);
-        
-        // Exibir resultados
-        viewSerie.mostrarSeriesEncontradas(resultados);
-        
-        if (resultados.isEmpty()) {
-            return;
-        }
-        
-        // Selecionar série para excluir
+        buscarSeriePorNome();
         System.out.print("\nDigite o ID da série que deseja excluir (0 para cancelar): ");
-        int idSelecionado = sc.nextInt();
-        sc.nextLine(); // Limpar buffer
-        
-        if (idSelecionado <= 0) {
-            System.out.println("Operação cancelada.");
-            return;
-        }
-        
-        // Verificar se o ID está na lista
-        boolean encontrado = false;
-        Serie serieSelecionada = null;
-        for (Serie s : resultados) {
-            if (s.getId() == idSelecionado) {
-                encontrado = true;
-                serieSelecionada = s;
-                break;
-            }
-        }
-        
-        if (!encontrado) {
-            System.out.println("ID não encontrado na lista!");
-            return;
-        }
-        
-        // Continuar com a exclusão usando o ID selecionado
-        excluirSerie(idSelecionado);
-    }
+        int id = sc.nextInt();
+        sc.nextLine();
 
-    public void excluirSerie(int id) throws Exception{
         Serie S = arqSerie.read(id);
-
-        //verifica se serie existe
-        if(S == null){
+        if (S == null) {
             System.out.println("Série não encontrada.");
             return;
         }
-        
-        //verifica se exite episodios vinculados a serie
-        if(relacionamento.serieTemEpisodios(id)){
-            System.out.println("Não é possível exlcuir! Existem episódios vinculados a esta série.");
-            System.out.println("Exclua todos episódios antes de continuar.");
 
-            //mostrar qtd dos episódios
+        excluirSerie(id, S);
+    }
+
+    public void excluirSerie(int id, Serie S) throws Exception {
+        if (relacionamento.serieTemEpisodios(id)) {
+            System.out.println("Não é possível excluir! Existem episódios vinculados a esta série.");
             int qtdEP = relacionamento.getTotalEpisodios(id);
             System.out.println("Total de episódios vinculados: " + qtdEP);
             return;
         }
 
-        //confirmar a exclusao se possivel
-        boolean result = false;
         System.out.print("\nConfirma a exclusão? (S/N) ");
         char resp = sc.next().charAt(0);
+        sc.nextLine();
+
         if (resp == 'S' || resp == 's') {
-            result = arqSerie.delete(id);
+            boolean result = arqSerie.delete(id);
+            if (result) {
+                indice.excluirSerie(S.getNome(), id);
+                System.out.println("Série excluída com sucesso!");
+            } else {
+                System.out.println("Erro ao excluir série.");
+            }
         } else {
             System.out.println("Exclusão cancelada.");
         }
-
-        if(result){
-            System.out.println("Série excluida com sucesso!");
-        }else{
-            System.out.println("Eroo ao excluir série.");
-        }
-
     }
 
     public void visualizarAtoresSerie() throws Exception {
-        String termobusco = viewSerie.LerNomeSerie();
-
-        if (termobusco.trim().isEmpty()) {
-            System.out.println("Termo de busca inválido!");
-            return;
-        }
-
-        // Realizar a busca
-        ArrayList<Serie> resultados = relacionamento.buscarSeriePorNome(termobusco);
-
-        // Exibir resultados
-        viewSerie.mostrarSeriesEncontradas(resultados);
-
-        if (resultados.isEmpty()) {
-            return;
-        }
-
-        //Escolher série para visualizar atores
+        buscarSeriePorNome();
         System.out.print("\nDigite o ID da série que deseja visualizar os atores (0 para cancelar): ");
         int idSelecionado = sc.nextInt();
-        sc.nextLine(); // Limpar buffer
-
-
+        sc.nextLine();
 
         Serie S = arqSerie.read(idSelecionado);
-        if(S == null){
+        if (S == null) {
             System.out.println("Série não encontrada.");
             return;
         }
+
         ArrayList<Ator> atores = relacionamentoAtorSerie.getAtoresDaSerie(idSelecionado);
         viewAtor.mostraResultadoBuscaAtores(atores);
     }
 
     public void linkarAtorSerie() throws Exception {
-        String termoBusca = viewSerie.LerNomeSerie();
-        
-        if (termoBusca.trim().isEmpty()) {
-            System.out.println("Termo de busca inválido!");
-            return;
-        }
-        
-        // Realizar a busca
-        ArrayList<Serie> resultados = relacionamento.buscarSeriePorNome(termoBusca);
-        
-        // Exibir resultados
-        viewSerie.mostrarSeriesEncontradas(resultados);
-        
-        if (resultados.isEmpty()) {
-            return;
-        }
-        
-        // Selecionar série para vincular ator
+        buscarSeriePorNome();
         System.out.print("\nDigite o ID da série que deseja vincular um ator (0 para cancelar): ");
         int idSelecionadoSerie = sc.nextInt();
-        sc.nextLine(); // Limpar buffer
-        
-        if (idSelecionadoSerie <= 0) {
-            System.out.println("Operação cancelada.");
-            return;
-        }
-        
+        sc.nextLine();
+
         Serie S = arqSerie.read(idSelecionadoSerie);
         if (S == null) {
             System.out.println("Série não encontrada!");
             return;
         }
 
-        
-        // Verificar se o ID está na lista
         String termoBuscaAtor = viewAtor.lerNomeAtor();
-        if (termoBuscaAtor.trim().isEmpty()) {
-            System.out.println("Termo de busca inválido!");
-            return;
-        }
+        ArrayList<Ator> atores = relacionamentoAtorSerie.buscarAtorPorNome(termoBuscaAtor);
 
-        // Realizar a busca
-        ArrayList<Ator> resultadosAtor = relacionamentoAtorSerie.buscarAtorPorNome(termoBuscaAtor);
+        viewAtor.mostraResultadoBuscaAtores(atores);
+        if (atores.isEmpty()) return;
 
-        //exibir resultados
-        viewAtor.mostraResultadoBuscaAtores(resultadosAtor);
-
-        if (resultadosAtor.isEmpty()) {
-            return;
-        }
-        
-        // Selecionar ator para vincular à série
         System.out.print("\nDigite o ID do ator que deseja vincular à série (0 para cancelar): ");
         int idSelecionadoAtor = sc.nextInt();
-        sc.nextLine(); // Limpar buffer
+        sc.nextLine();
 
         Ator A = arqAtor.read(idSelecionadoAtor);
         if (A == null) {
@@ -321,11 +214,9 @@ public class MenuSerie {
         }
 
         relacionamento.removerRelacionamento(A.getIDSerie(), A.getId());
-        
         viewSerie.linkarSerieAtor(idSelecionadoAtor, idSelecionadoSerie);
-
-        
         A.setIDSerie(S.getId());
+
         boolean result = arqAtor.update(A);
         if (result) {
             relacionamentoAtorSerie.atualizarIndicesAposOperacao(A, "update");
@@ -335,71 +226,31 @@ public class MenuSerie {
         }
     }
 
-    public void desvincularAtorSerie() throws Exception{
-        // Buscar série pelo nome
-        String termoBusca = viewSerie.LerNomeSerie();
-        if (termoBusca.trim().isEmpty()) {
-            System.out.println("Termo de busca inválido!");
-            return;
-        }
+    public void desvincularAtorSerie() throws Exception {
+        buscarSeriePorNome();
+        System.out.print("\nDigite o ID da série que deseja desvincular do ator (0 para cancelar): ");
+        int idSelecionadoSerie = sc.nextInt();
+        sc.nextLine();
 
-        // Realizar a busca
-        ArrayList<Serie> resultado = relacionamento.buscarSeriePorNome(termoBusca);
-
-        // Exibir resultados
-        viewSerie.mostraResultadoBuscaSeries(resultado);
-
-        if (resultado.isEmpty()) {
-            System.out.println("Nenhuma série encontrada com o nome: " + termoBusca);
-            return;
-        }
-
-        // Selecionar série para linkar
-        System.out.print("\nDigite o ID da série que deseja deslinkar ao ator (0 para cancelar): ");
-        int idSerieSelecionada = sc.nextInt();
-        sc.nextLine(); // Limpar buffer
-
-        Serie S = arqSerie.read(idSerieSelecionada);
+        Serie S = arqSerie.read(idSelecionadoSerie);
         if (S == null) {
             System.out.println("Série não encontrada!");
             return;
         }
-        
-        if (S.getIDator() == 0) {
-            System.out.println("A série não está vinculada a nenhuma ator!");
-            return;
-        }
 
-        String AtorNome = viewAtor.lerNomeAtor();
-        if (AtorNome.trim().isEmpty()) {
-            System.out.println("Termo de busca inválido!");
-            return;
-        }
+        String termoBuscaAtor = viewAtor.lerNomeAtor();
+        ArrayList<Ator> atores = relacionamentoAtorSerie.buscarAtorPorNome(termoBuscaAtor);
 
-        // Realizar a busca
-        ArrayList<Ator> resultados = relacionamentoAtorSerie.buscarAtorPorNome(AtorNome);
+        viewAtor.mostraResultadoBuscaAtores(atores);
+        if (atores.isEmpty()) return;
 
-        // Exibir resultados
-        viewAtor.mostraResultadoBuscaAtores(resultados);
+        System.out.print("\nDigite o ID do ator que deseja desvincular da série (0 para cancelar): ");
+        int idSelecionadoAtor = sc.nextInt();
+        sc.nextLine();
 
-        if (resultados.isEmpty()) {
-            System.out.println("Nenhum ator encontrado com o nome: " + AtorNome);
-            return;
-        }
-
-        // Selecionar Ator para deslinkar
-        System.out.print("\nDigite o ID do ator que deseja deslinkar de uma série (0 para cancelar): ");
-        int idSelecionado = sc.nextInt();
-        sc.nextLine(); // Limpar buffer
-
-        Ator A = arqAtor.read(idSelecionado);
+        Ator A = arqAtor.read(idSelecionadoAtor);
         if (A == null) {
             System.out.println("Ator não encontrado!");
-            return;
-        }
-        
-        if (A.getIDSerie() == 0) {
-            System.out.println("O ator não está vinculado a nenhuma série!");
             return;
         }
 
@@ -408,14 +259,12 @@ public class MenuSerie {
             return;
         }
 
-        // Remover o relacionamento
         relacionamento.removerRelacionamento(A.getIDSerie(), A.getId());
         S.setIDator(0);
 
         viewAtor.deslinkarAtorSerie(A.getId(), S.getId());
-        
         boolean result = arqSerie.update(S);
-        
+
         if (result) {
             relacionamentoAtorSerie.atualizarIndicesAposOperacao(A, "update");
             System.out.println("Ator desvinculado da série com sucesso!");

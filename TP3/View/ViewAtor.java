@@ -1,8 +1,6 @@
-package TP2.View;
+package View;
 
-import TP2.Model.*;
-import TP2.Service.ParIDSerieAtor;
-
+import Model.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -13,226 +11,202 @@ public class ViewAtor {
         this.sc = sc;
     }
 
-    public void linkarAtorSerie(int idAtor, int idSerie){
+    // -------------------------------
+    // Operações de Link e Deslink
+    // -------------------------------
+    public void linkarAtorSerie(int idAtor, int idSerie) {
         System.out.println("Linkar Ator à Série: ");
         System.out.println("ID do Ator: " + idAtor);
         System.out.println("ID da Série: " + idSerie);
 
-        // Confirmar a criação
         System.out.print("\nConfirma a inclusão do ator na série? (S/N) ");
-        String resp = sc.nextLine().toUpperCase(); // Usar nextLine() para capturar a linha inteira
-        if (resp.isEmpty() || !(resp.equals("S") || resp.equals("N"))) {
-            System.out.println("Resposta inválida. Por favor, digite 'S' para Sim ou 'N' para Não.");
-            return;
-        }
-
-        if(resp.equals("S")) {
-            
+        String resp = sc.nextLine().toUpperCase();
+        if (resp.equals("S")) {
             System.out.println("Ator vinculado à série com sucesso!");
-        } else{
+        } else {
             System.out.println("Vinculação de ator à série cancelada.");
         }
     }
 
-    public void deslinkarAtorSerie(int Ator, int serie){
+    public void deslinkarAtorSerie(int idAtor, int idSerie) {
         System.out.println("Desvincular Ator da Série: ");
-        System.out.println("ID do Ator: " + Ator);
-        System.out.println("ID da Série: " + serie);
+        System.out.println("ID do Ator: " + idAtor);
+        System.out.println("ID da Série: " + idSerie);
 
-        // Confirmar a criação
         System.out.print("\nConfirma a desvinculação do ator da série? (S/N) ");
-        String resp = sc.nextLine().toUpperCase(); // Usar nextLine() para capturar a linha inteira
-        if (resp.isEmpty() || !(resp.equals("S") || resp.equals("N"))) {
-            System.out.println("Resposta inválida. Por favor, digite 'S' para Sim ou 'N' para Não.");
-            return;
-        }
-
-        if(resp.equals("S")) {
-            
+        String resp = sc.nextLine().toUpperCase();
+        if (resp.equals("S")) {
             System.out.println("Ator desvinculado da série com sucesso!");
-        } else{
+        } else {
             System.out.println("Desvinculação de ator da série cancelada.");
         }
     }
 
-    public Ator incluirAtor(int IDSerie) throws Exception {
-        System.out.println("Inclusão de ator: ");
-        String Nome = "";
-        char Genero = ' ';
-        boolean dadosCorretos = false;
+    // -------------------------------
+    // CRUD - Inclusão
+    // -------------------------------
+    public Ator incluirAtor(int IDSerie) {
+        System.out.println("Inclusão de ator:");
+        System.out.print("Nome: ");
+        String nome = sc.nextLine();
 
-        System.out.println("Nome:");
-        Nome = sc.nextLine();
-
+        char genero;
         do {
-            dadosCorretos = false;
-            System.out.println("Gênero: ");
-            Genero = sc.nextLine().charAt(0);
-            if (Genero == 'M' || Genero == 'F') {
-                dadosCorretos = true;
-            } else {
-                System.err.println("Gênero inválido! Use 'M' ou 'F'.");
+            System.out.print("Gênero (M/F): ");
+            genero = sc.nextLine().toUpperCase().charAt(0);
+            if (genero != 'M' && genero != 'F') {
+                System.out.println("Gênero inválido. Digite 'M' ou 'F'.");
             }
-        } while (!dadosCorretos);
-        
-        // Confirmar a criação
+        } while (genero != 'M' && genero != 'F');
+
         System.out.println("\nConfirme os dados do Ator:");
-        System.out.println("Nome: " + Nome);
+        System.out.println("Nome: " + nome);
         System.out.println("ID da Série: " + IDSerie);
-        System.out.println("Gênero: " + Genero);
+        System.out.println("Gênero: " + genero);
 
-        System.out.print("\nConfirma a inclusão da série? (S/N) ");
-        String resp = sc.nextLine().toUpperCase(); // Usar nextLine() para capturar a linha inteira
-        System.out.println(resp);
-        if (resp.isEmpty() || !(resp.equals("S") || resp.equals("N"))) {
-            System.out.println("Resposta inválida. Por favor, digite 'S' para Sim ou 'N' para Não.");
-            return null;
-        }
-
-        if(resp.equals("S")) {
-            try {
-                Ator A = new Ator(Nome, IDSerie, Genero);
-                return A;
-            } catch (Exception E){
-                System.out.println("Erro do sistema. Não foi possível incluir o ator!" );
-                return null;
-            }
-        } else{
+        System.out.print("Confirma a inclusão? (S/N): ");
+        String resp = sc.nextLine().toUpperCase();
+        if (resp.equals("S")) {
+            return new Ator(nome, IDSerie, genero);
+        } else {
             System.out.println("Criação de ator cancelada.");
             return null;
         }
     }
 
-    public String lerNomeAtor(){
-        System.out.print("Digite o nome do ator: ");
-        String termo = sc.nextLine();
-        return termo;
+    // -------------------------------
+    // CRUD - Alteração
+    // -------------------------------
+    public Ator alterarAtor(int idSerie, Ator ator) {
+        System.out.println("Alteração de ator:");
+        mostrarAtor(ator);
+
+        System.out.print("Novo nome (Enter para manter): ");
+        String novoNome = sc.nextLine();
+        if (!novoNome.isEmpty()) {
+            ator.setNome(novoNome);
+        }
+
+        System.out.print("Novo gênero (M/F ou Enter para manter): ");
+        String generoInput = sc.nextLine().toUpperCase();
+        if (!generoInput.isEmpty()) {
+            char novoGenero = generoInput.charAt(0);
+            if (novoGenero == 'M' || novoGenero == 'F') {
+                ator.setGenero(novoGenero);
+            } else {
+                System.out.println("Gênero inválido. Mantendo o anterior.");
+            }
+        }
+
+        System.out.println("\nConfirme os novos dados:");
+        mostrarAtor(ator);
+
+        System.out.print("Confirma as alterações? (S/N): ");
+        char resp = sc.next().toUpperCase().charAt(0);
+        sc.nextLine();
+        if (resp == 'S') {
+            return ator;
+        } else {
+            System.out.println("Alterações canceladas.");
+            return null;
+        }
     }
 
-    public int LerIDAtor(){
-        System.out.print("Digite o ID do Ator: ");
+    // -------------------------------
+    // Entrada de dados
+    // -------------------------------
+    public String lerNomeAtor() {
+        System.out.print("Digite o nome do ator: ");
+        return sc.nextLine();
+    }
+
+    public int LerIDAtor() {
+        System.out.print("Digite o ID do ator: ");
         int id = sc.nextInt();
-        sc.nextLine(); // Limpar buffer
+        sc.nextLine();
         return id;
     }
 
-    public void mostraResultadoBuscaAtores(ArrayList<Ator> atores){
-        if(atores.isEmpty()){
-            System.out.println("Nenhum ator encontrado com o nome informado.");
+    // -------------------------------
+    // Exibição dos resultados
+    // -------------------------------
+    public void mostraResultadoBuscaAtores(ArrayList<Ator> atores) {
+        if (atores.isEmpty()) {
+            System.out.println("\nNenhum ator encontrado com o termo informado.");
             return;
         }
 
         System.out.println("\n=== Atores Encontrados ===");
-        System.out.println("Total: " + atores.size() + " ator(es) encontrado(s).");
-        
+        System.out.println("Total: " + atores.size() + " ator(es).");
+
         for (Ator ator : atores) {
-            System.out.println("\nID: " + ator.getId() + " | Nome:" + ator.getNome() + " | Gênero: " + ator.getGenero());
+            System.out.println("\nID: " + ator.getId() + " | Nome: " + ator.getNome() + " | Gênero: " + ator.getGenero());
         }
     }
 
-    public void mostraResultadoBuscaSeries(ArrayList<Serie> series){
-        if(series.isEmpty()){
-            System.out.println("Nenhuma série encontrada com o nome informado.");
+    public void mostraResultadoBuscaSeries(ArrayList<Serie> series) {
+        if (series.isEmpty()) {
+            System.out.println("Nenhuma série encontrada.");
             return;
         }
 
         System.out.println("\n=== Séries Encontradas ===");
-        System.out.println("Total: " + series.size() + " série(s) encontrada(s).");
-        
+        System.out.println("Total: " + series.size() + " série(s).");
+
         for (Serie serie : series) {
-            System.out.println("\nID: " + serie.getId() + " | Nome:" + serie.getNome());
+            System.out.println("\nID: " + serie.getId() + " | Nome: " + serie.getNome());
         }
-
     }
 
-    public Ator alterarAtor(int idSerie, Ator A) throws Exception {
-        System.out.println("Alteração de ator:");
-        if (A != null) {
-            System.out.println("Ator Encontrado: ");
-            mostrarAtor(A);
-
-            System.out.println("\nDigite o novo nome do ator (ou deixe em branco para manter o anterior): ");
-            String novoNome = sc.nextLine();
-            if (!novoNome.isEmpty()) {
-                A.setNome(novoNome);
-            }
-
-            System.out.println("\nDigite o novo gênero do ator (ou deixe em branco para manter o anterior): ");
-            char novoGenero = sc.nextLine().charAt(0);
-            if (novoGenero == 'M' || novoGenero == 'F') {
-                A.setGenero(novoGenero);
-            } else {
-                System.err.println("Gênero inválido! Use 'M' ou 'F'.");
-            }
-
-            System.out.println("\nConfirme os dados do Ator:");
-            System.out.println("Nome: " + A.getNome());
-            System.out.println("ID da Série: " + idSerie);
-            System.out.println("Gênero: " + A.getGenero());
-
-             // Confirmação da alteração
-             System.out.print("\nConfirma as alterações? (S/N) ");
-             char resp = sc.next().charAt(0);
-             if (resp == 'S' || resp == 's') {
-                 // Salva as alterações no arquivo
-                 return A;
-             } else {
-                 System.out.println("Alterações canceladas.");
-                 return null;
-             }
-         }
-         return null;
-    }
-
-    public int selecionaAtorDoResultado(ArrayList<Ator> Atores) {
-        if (Atores.isEmpty()) {
-            return -1;
-        }
-
-        if (Atores.size() == 1) {
-            System.out.println("\nAtores selecionados automaticamente: " + Atores.get(0).getNome());
-            return Atores.get(0).getId();
-        }
-
-        System.out.print("\nDigite o ID do ator que deseja selecionar (0 para cancelar): ");
-        int id = sc.nextInt();
-        sc.nextLine(); // Limpar buffer
-
-        // Verificar se o ID está na lista
-        if (id != 0) {
-            boolean idExiste = false;
-            for (Ator at : Atores) {
-                if (at.getId() == id) {
-                    idExiste = true;
-                    break;
-                }
-            }
-
-            if (!idExiste) {
-                System.out.println("ID inválido! Por favor, selecione um ID da lista apresentada.");
-                return selecionaAtorDoResultado(Atores); // Recursão para nova tentativa
-            }
-        }
-
-        return id;
-    }
-
-    public void mostraListaAtores(ArrayList<Ator> Atores) {
-        if (Atores.isEmpty()) {
+    public void mostraListaAtores(ArrayList<Ator> atores) {
+        if (atores.isEmpty()) {
             System.out.println("Nenhum ator encontrado.");
             return;
         }
 
         System.out.println("\n=== Lista de Atores ===");
-        for (Ator ator : Atores) {
+        for (Ator ator : atores) {
             System.out.println("ID: " + ator.getId() + " | Nome: " + ator.getNome() + " | Gênero: " + ator.getGenero());
         }
     }
-    
-    public void mostrarAtor(Ator A) throws Exception {
-        System.out.println("\n=== Ator Encontrado ===");
-        System.out.println("ID: " + A.getId());
-        System.out.println("Nome: " + A.getNome());
-        System.out.println("Gênero: " + A.getGenero());
+
+    public void mostrarAtor(Ator ator) {
+        System.out.println("\n=== Dados do Ator ===");
+        System.out.println("ID: " + ator.getId());
+        System.out.println("Nome: " + ator.getNome());
+        System.out.println("Gênero: " + ator.getGenero());
+    }
+
+    // -------------------------------
+    // Seleção de ID a partir da busca
+    // -------------------------------
+    public int selecionaAtorDoResultado(ArrayList<Ator> atores) {
+        if (atores.isEmpty()) {
+            return -1;
+        }
+
+        if (atores.size() == 1) {
+            System.out.println("\nAtor selecionado automaticamente: " + atores.get(0).getNome());
+            return atores.get(0).getId();
+        }
+
+        System.out.print("\nDigite o ID do ator que deseja selecionar (0 para cancelar): ");
+        int id = sc.nextInt();
+        sc.nextLine();
+
+        boolean idExiste = false;
+        for (Ator at : atores) {
+            if (at.getId() == id) {
+                idExiste = true;
+                break;
+            }
+        }
+
+        if (!idExiste) {
+            System.out.println("ID inválido! Por favor, selecione um ID da lista apresentada.");
+            return selecionaAtorDoResultado(atores);
+        }
+
+        return id;
     }
 }

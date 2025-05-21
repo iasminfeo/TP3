@@ -1,6 +1,6 @@
-package TP2.Service;
+package Service;
 
-import TP2.Interfaces.RegistroArvoreBMais;
+import Interfaces.RegistroArvoreBMais;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;

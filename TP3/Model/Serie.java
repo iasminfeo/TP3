@@ -1,6 +1,6 @@
-package TP2.Model;
+package Model;
 
-import TP2.Interfaces.Registro;
+import Interfaces.Registro;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
