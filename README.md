@@ -1,153 +1,124 @@
-# PUCFlix 2.0 - Sistema de Gerenciamento de Séries, Atores e episódios
+# 🎬 PUCFlix 3.0 - Sistema de Gerenciamento de Séries, Atores e Episódios com Índice Invertido
 
 ## 📽️ O que o trabalho faz?
 
-O PUCFlix é um sistema de gerenciamento de séries de streaming, desenvolvido como parte da primeira tarefa prática da disciplina, cujo foco foi:
-* implementação de um relacionamento 1:N entre duas entidades: Série e Episódio.
-* implementação de um relacionamneto N:N entre duas entidades: Série e Ator.
+O **PUCFlix 3.0** é a evolução do projeto desenvolvido no TP2, agora com a implementação do **índice invertido** para tornar as buscas de séries, episódios e atores mais rápidas, inteligentes e eficientes.
 
-A aplicação permite ao usuário cadastrar, alterar, buscar e excluir informações sobre séries e seus respectivos episódios e atores, por meio de uma interface simples e interativa. O sistema segue o padrão de arquitetura MVC (Model-View-Controller), separando claramente a lógica de controle, a interface com o usuário e o acesso aos dados.
+Além dos relacionamentos já implementados (1:N entre séries e episódios e N:N entre séries e atores), o sistema agora permite que o usuário busque séries, episódios e atores **a partir de termos dos seus títulos ou nomes**, aplicando a lógica de **TFxIDF (Term Frequency — Inverse Document Frequency)**.
 
+🔍 A busca agora não é mais por nome exato, mas sim por termos, processados e normalizados (sem acentos e em letras minúsculas), garantindo resultados mais relevantes, ordenados por peso de correspondência.
 
-**Funcionalidades, Relacionamentos e Estrutura:**
+O sistema mantém a organização em arquitetura **MVC (Model-View-Controller)** e continua oferecendo todas as funcionalidades de cadastro, edição, exclusão e vinculação, mas agora com uma camada de busca muito mais poderosa.
 
-Cada série pode conter múltiplos episódios, o que caracteriza o relacionamento de um para muitos (1:N). Para isso, a entidade Episódio possui um ID de série como chave estrangeira, assegurando o vínculo entre as duas entidades.Também foi implementada uma Árvore B+ para registrar esse relacionamento, garantindo uma busca eficiente e estruturada dos episódios a partir das suas respectivas séries. 
-Cada série pode conter múltiplos atores e cada ator também pode conter múltiplas séries,o que caracteria o relacionamento de muitos para muitos (N:N), para isso a entidade ator possui um ID de série como chave estrangeira, e a entidade série tambem possui um ID de ator como chave estrangeira. Sendo assim possivel assegurar o vínculo entre as duas entidades.
+---
 
-Além disso, o sistema conta com:
+## 🔥 Funcionalidades, Relacionamentos e Novidades do TP3
 
-- Um CRUD genérico que opera sobre arquivos binários, com estrutura de lápide, tamanho do registro e vetor de bytes.
+### ✅ **Novidade Principal**
+- Implementação de **índices invertidos** nas entidades:
+  - Série (títulos)
+  - Episódio (títulos)
+  - Ator (nomes)
 
-- Utilização da Tabela Hash Extensível para índice direto (por ID).
+### ✅ **Funcionamento do Índice Invertido**
+- No momento da inclusão, alteração ou exclusão de qualquer entidade, as palavras dos títulos ou nomes são processadas:
+  - Remoção de acentos
+  - Transformação para minúsculo
+  - Remoção de *stop words* (artigos, preposições, etc.)
+- Para cada palavra, é criada uma lista com os IDs das entidades que possuem essa palavra, acompanhada de seu peso TF.
+- Na busca, o sistema:
+  - Calcula o **TFxIDF** de cada termo.
+  - Retorna os resultados ordenados do mais relevante para o menos relevante.
 
-- Utilização da Árvore B+ para índice indireto (por nome e também para mapear os episódios por série).
+---
 
-- Restrições de integridade, como impedir a exclusão de uma série que ainda possui episódios vinculados ou atores.
+## 🧠 Estruturas de Dados Utilizadas
+- 🔗 **CRUD Genérico**: Persistência dos dados em arquivos binários.
+- 🗂️ **Índice Direto**: Hash Extensível, mapeando ID para posição no arquivo.
+- 🌳 **Índice Indireto**: Árvore B+ para relacionamentos (Série-Episódio e Série-Ator).
+- 📜 **Índice Invertido**: Implementado usando a classe `ListaInvertida`, responsável pelas buscas textuais nas três entidades.
 
-- Uma visualização segmentada por temporada, permitindo que os episódios sejam organizados de forma intuitiva.
-
-- Um menu interativo que facilita a navegação entre séries e episódios, e entre séries e atores, mantendo uma boa experiência de uso.
-
-- Persistência dos dados em arquivos binários.
-
-
-O desenvolvimento partiu da base fornecida em sala (CRUD genérico) e exigiu a adaptação e integração de estruturas mais complexas para manipulação dos dados de forma eficiente. O projeto foi entregue nesse repositório do GitHub, com toda a estrutura separada em pacotes e classes bem definidas, respeitando os princípios da disciplina e facilitando a manutenção e expansão futura.
-
-
-## 👨‍💻 Equipe
-
-- Cauã Costa Alves
-- Iasmin Ferreira e Oliveira
-- Andriel Mark da Silva Pinto
+---
 
 ## 📂 Estrutura do Projeto
 
-
 ### 🧩 Model (Camada de Dados)
-
-**Serie.java**
-- Representa a entidade Série com atributos como título, ano, sinopse e plataforma
-- Contém o atributo `idAtor` como chave estrangeira para vinculação ao ator correspondente
-- Implementa métodos de serialização e desserialização para persistência em arquivo
-
-**Episodio.java**
-- Representa a entidade Episódio com atributos como título, temporada, data de lançamento e duração
-- Contém o atributo `idSerie` como chave estrangeira para vinculação à série correspondente
-- Implementa métodos de serialização e desserialização para persistência em arquivo
-
-**Ator.java**
-- Representa a entidade Ator com atributos como Nome, Gênero e idade.
-- Contém o atributo `idSerie` como chave estrangeira para vinculação à série correspondente
-- Implementa métodos de serialização e desserialização para persistência em arquivo
-
+- **Serie.java**: Define os atributos da série. Participa dos relacionamentos e do índice invertido.
+- **Episodio.java**: Define atributos dos episódios, vinculados à série.
+- **Ator.java**: Define os atores, vinculados às séries.
 
 ### 🎮 Menu (Camada de Controle)
+- **MenuSerie.java**
+  - Busca por lista invertida.
+  - CRUD completo.
+  - Vinculação com atores.
+- **MenuAtor.java**
+  - Busca por lista invertida.
+  - CRUD completo.
+  - Gerencia relacionamento com séries.
+- **MenuEpisodio.java**
+  - Busca por lista invertida.
+  - CRUD completo.
+  - Gerencia episódios de uma série.
 
-**MenuEpisodio.java**
-- Gerencia a lógica de negócio para episódios
-- Métodos principais: `menuEpisodio()`, `gerenciarEpisodiosPorNome()`, `buscarEpisodioPorNome()`, `gerenciarEpisodiosDeSerie()`, `incluirEpisodio(int idSerie)`, `alterarEpisodioPorNome()`, `excluirEpisodioPorNome()´, `listarEpisodiosDaSerie()`
-- Garante que episódios sejam vinculados apenas a séries existentes
+### 👁️ View (Camada de Interface)
+- **ViewSerie.java**, **ViewAtor.java**, **ViewEpisodio.java**:
+  - Responsáveis pela interação com o usuário, com visualização dos dados e confirmações.
 
-**MenuSerie.java**
-- Gerencia a lógica de negócio para séries
-- Métodos principais: `menuSerie()`, `buscarSerieID()`, `incluirSerie()`, `excluirSerieNome()`, `alterarSerieID()`
+### 🛠️ Service (Infraestrutura)
+- **Arquivo.java**: CRUD genérico.
+- **HashExtensivel.java**: Índice direto.
+- **ArvoreBMais.java**: Relacionamentos 1:N e N:N.
+- **ListaInvertida.java**: Implementa as listas de termos para o índice invertido.
+- **IndiceInvertido.java**:
+  - 🔥 Principal novidade do TP3.
+  - Controla as listas invertidas de séries, episódios e atores.
+  - Gerencia inserções, exclusões e buscas TFxIDF.
+- **RelacionamentoSerieEpisodio.java** e **RelacionamentoSerieAtor.java**:
+  - Gerenciam os relacionamentos entre as entidades.
+- **StopWords.java**:
+  - Gerencia as palavras irrelevantes para a busca.
 
-**MenuAtor.java**
-- Gerencia a lógica de negócio para atores
-- Métodos principais: `menuAtor()`, `gerenciarAtoresPorNome()`, `buscarAtorPorNome()`, `gerenciarAtoresDeSerie()`, `incluirAtor(int idSerie)`, `alterarAtorPorNome()`, `excluirAtorPorNome()´, `listarAtoresDaSerie()`
-- Garante que atores sejam vinculados apenas a séries existentes
+---
 
+## ✅ Requisitos Implementados no TP3
+- 🔗 CRUD completo para séries, episódios e atores.
+- 🔗 Relacionamento 1:N entre séries e episódios usando Árvore B+.
+- 🔗 Relacionamento N:N entre séries e atores usando Árvore B+.
+- 🔥 **Busca por termos (com TFxIDF) usando índice invertido nas três entidades.**
+- 🔥 Atualização automática dos índices invertidos após inserções, alterações e exclusões.
+- 🔍 Visualização dos resultados de busca ordenados por relevância (peso TFxIDF).
+- 🔒 Restrições de integridade mantidas.
+- 🎯 Interface de busca 100% migrada para o índice invertido.
 
-### 👁️ View (Camada de Visualização)
+---
 
-**ViewSerie.java**
-- Interface com o usuário para operações relacionadas a séries
-- Métodos principais: `incluirSerie()`, `alterarSerie()`, `mostraSerie()`, `mostraResultadoBuscaSeries()`
+## 🚀 Experiência e Desafios
+> A implementação do índice invertido foi, sem dúvidas, o maior desafio desse trabalho. Tivemos que entender não só a lógica da frequência dos termos, mas também como calcular corretamente o IDF (inverso da frequência dos documentos) e aplicar o conceito de TFxIDF.  
 
-**ViewEpisodio.java**
-- Interface com o usuário para operações relacionadas a episódios
-- Métodos principais: `lerNomeEpisodio()`, `incluirEpisodio()`, `alterarEpisodio()`, `mostraResultadoBuscaEpisodios()`, `mostraEpisodio`
+> Além disso, precisávamos garantir que o índice invertido se mantivesse consistente com as operações CRUD, o que exigiu um bom controle das atualizações nas listas invertidas.
 
-**ViewAtor.java**
-- Interface com o usuário para operações relacionadas a ator
-- Métodos principais: `incluirAtor()`, `alterarAtor()`, `mostraAtor()`, `mostraResultadoBuscaAtor()`
+> A etapa mais desafiadora foi implementar corretamente a normalização dos textos e garantir que as buscas realmente ordenassem os resultados de forma correta pela relevância.  
 
+> No fim, conseguimos implementar todas as funcionalidades solicitadas, mantendo a integridade dos dados e melhorando muito a performance e usabilidade do sistema.
 
-### 🛠️ Service (Camada de Serviço/Infraestrutura)
+---
 
-**Arquivo.java**
-- Implementa o CRUD genérico para manipulação de arquivos
-- Utiliza HashExtensivel como índice direto para acesso rápido por ID
+## ✅ Checklist
+| Pergunta | Resposta |
+|----------|----------|
+| O índice invertido com os termos dos títulos das séries foi criado usando a classe ListaInvertida? | ✅ Sim |
+| O índice invertido com os termos dos títulos dos episódios foi criado usando a classe ListaInvertida? | ✅ Sim |
+| O índice invertido com os termos dos nomes dos atores foi criado usando a classe ListaInvertida? | ✅ Sim |
+| É possível buscar séries por palavras usando o índice invertido? | ✅ Sim |
+| É possível buscar episódios por palavras usando o índice invertido? | ✅ Sim |
+| É possível buscar atores por palavras usando o índice invertido? | ✅ Sim |
+| O trabalho está completo? | ✅ Sim |
+| O trabalho é original e não é cópia de nenhum colega? | ✅ Sim |
 
-**HashExtensivel.java**
-- Implementa a estrutura de dados Tabela Hash Extensível
-- Utilizada como índice direto para acesso por ID
+---
 
-**ArvoreBMais.java**
-- Implementa a estrutura de dados Árvore B+
-- Utilizada para gerenciar o relacionamento entre séries e episódios
-
-**ParIDSerieEpisodio.java**
-- Representa o par (idSerie, idEpisodio) para uso na Árvore B+
-- Implementa a interface `RegistroArvoreBMais`
-
-**RelacionamentoSerieEpisodio.java**
-- Manipula o par (idSerie, idEpisodio) para uso na Árvore B+
-- Reponsável por manipular os índices dentro da árvore, como exemplo: adicionar ou remover um relacionamento, verificar a integridade do metodo e atualizar os índices.
-
-**ParIDEndereco.java**
-- Representa o par (id, endereco) para uso na Tabela Hash Extensível
-- Implementa a interface `RegistroHashExtensivel`
-
-**ParIDSerieAtor.java**
-- Representa o par (idSerie, idAtor) para uso na Árvore B+
-- Implementa a interface `RegistroArvoreBMais`
-
-**RelacionamentoSerieAtor.java**
-- Manipula o par (idSerie, idAtor) para uso na Árvore B+
-- Reponsável por manipular os indices dentro da árvore, como exemplo: adicionar ou remover um relacionamento, verificar a integridade do metodo e atualizar os índices.
-
-
-### ✅ Requisitos Implementados
-
-- CRUD completo para séries , episódios e atores.
-
-- Relacionamento 1:N entre séries e episódios utilizando uma Árvore B+.
-
-- Relacionamento N:N entre séries e atores utilizando uma Árvore B+.
-
-- Funcionalidade de busca por nome em todas as entidades.
-
-- Visualização dos episódios organizados por temporada.
-
-- Visualização dos atores organizados por séries.
-
-- Verificação de integridade referencial, assegurando a consistência dos dados.
-
-
-## 📝 Conclusão
-
-O processo de desenvolvimento do PUCFlix foi uma experiência valiosa, pois nos permitiu aplicar conceitos de estruturas de dados em um projeto prático. Apesar dos obstáculos enfrentados, especialmente com a Árvore B+, conseguimos avançar de forma significativa e aprender com os erros e acertos ao longo do caminho.
-
-A estrutura em camadas (MVC) trouxe muitos benefícios, permitindo uma organização clara do código, facilitando a colaboração e a evolução do sistema. Adicionalmente, as estratégias de recuperação implementadas ajudaram a manter o sistema robusto, mesmo diante das falhas na árvore de dados.
-
+## 👨‍💻 Equipe
+- Cauã Costa Alves
+- Iasmin Ferreira e Oliveira
+- Andriel Mark da Silva Pinto
